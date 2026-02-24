@@ -13,8 +13,11 @@ import abstraction.eqXRomu.produits.IProduit;
 public class Distributeur3Acteur implements IActeur {
 	
 	protected int cryptogramme;
+	protected Journal journal;
+
 
 	public Distributeur3Acteur() {
+    this.journal = new Journal("Journal EQ9", this);
 	}
 	
 	public void initialiser() {
@@ -33,6 +36,8 @@ public class Distributeur3Acteur implements IActeur {
 	////////////////////////////////////////////////////////
 
 	public void next() {
+    int etape = Filiere.LA_FILIERE.getEtape();
+    this.journal.ajouter("ETAPE" + etape);
 	}
 
 	public Color getColor() {// NE PAS MODIFIER
@@ -58,6 +63,7 @@ public class Distributeur3Acteur implements IActeur {
 	// Renvoie les journaux
 	public List<Journal> getJournaux() {
 		List<Journal> res=new ArrayList<Journal>();
+		res.add(journal);
 		return res;
 	}
 
