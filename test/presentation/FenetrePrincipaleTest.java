@@ -42,7 +42,7 @@ public class FenetrePrincipaleTest {
 			printWriter.print("\"eq4Transformateur1\":"+ Filiere.LA_FILIERE.tempsEquipes.get("EQ4") +",");
 			printWriter.print("\"eq5Transformateur2\":"+ Filiere.LA_FILIERE.tempsEquipes.get("EQ5") +",");
 			printWriter.print("\"eq6Transformateur3\":"+ Filiere.LA_FILIERE.tempsEquipes.get("EQ6") +",");
-			printWriter.print("\"eq7Distributeur1\":"+ Filiere.LA_FILIERE.tempsEquipes.get("EQ7") +",");
+			printWriter.print("\"eq7Transformateur4\":"+ Filiere.LA_FILIERE.tempsEquipes.get("EQ7") +",");
 			printWriter.print("\"eq8Distributeur2\":"+ Filiere.LA_FILIERE.tempsEquipes.get("EQ8") +",");
 			printWriter.print("\"eq9Distributeur3\":"+ Filiere.LA_FILIERE.tempsEquipes.get("EQ9") +"}");
 			printWriter.println();
@@ -56,5 +56,6 @@ public class FenetrePrincipaleTest {
 
 		
 	}
+
 
 }
