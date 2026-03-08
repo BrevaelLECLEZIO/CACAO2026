@@ -23,13 +23,13 @@ public class Producteur3Acteur implements IActeur {
 	public Producteur3Acteur() {
 		this.journal_periode = new Journal("Journal des périodes", this);
 		this.stock = new Producteur3Stock();
-		this.StockTotal= new VariableReadOnly(this + " Stock total", this, 0.0);
+		this.stock.addStock(Feve.F_BQ , 250.0);
+		this.stock.addStock(Feve.F_MQ , 250.0);
+		this.stock.addStock(Feve.F_HQ , 250.0);
+		this.StockTotal= new VariableReadOnly(this + " Stock total", this, this.stock.getStockTotal());
 	}
 	
 	public void initialiser() {
-		this.stock.addStock(Feve.F_BQ , 10.0);
-		this.stock.addStock(Feve.F_MQ , 20.0);
-		this.stock.addStock(Feve.F_HQ , 30.0);
 	}
 
 	public String getNom() {// NE PAS MODIFIER
@@ -47,8 +47,7 @@ public class Producteur3Acteur implements IActeur {
 	public void next() {
 		// défi 1 
 		this.journal_periode.ajouter("période : "+ Filiere.LA_FILIERE.getEtape());
-		//défi 2
-		this.StockTotal.setValeur(this.stock.getStockTotal());
+		this.StockTotal.setValeur(this,this.stock.getStockTotal(), cryptogramme);
 	}
 
 	public Color getColor() {// NE PAS MODIFIER
