@@ -24,7 +24,7 @@ public class Producteur3Acteur implements IActeur {
 		/** @author Vassili Spiridonov */
 		this.journal_periode = new Journal("Journal des périodes", this); 
 
-		
+
 		/** @author Guillaume Leroy */
 		this.stock = new Producteur3Stock();
 		this.stock.addStock(Feve.F_BQ , 250.0);
@@ -50,7 +50,7 @@ public class Producteur3Acteur implements IActeur {
 
 	public void next() {
 		// défi 1 
-		this.journal_periode.ajouter("période : "+ Filiere.LA_FILIERE.getEtape());
+		this.journal_periode.ajouter("période : "+ Filiere.LA_FILIERE.getEtape()); /** @author Vassili Spiridonov */
 		this.StockTotal.setValeur(this,this.stock.getStockTotal(), cryptogramme);
 	}
 
@@ -77,7 +77,7 @@ public class Producteur3Acteur implements IActeur {
 
 	// Renvoie les journaux
 	public List<Journal> getJournaux() {
-		List<Journal> res=new ArrayList<Journal>();
+		List<Journal> res=new ArrayList<Journal>(); /** @author Vassili Spiridonov */
 		res.add(this.journal_periode);
 		return res;
 	}
