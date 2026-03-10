@@ -85,6 +85,7 @@ public class Transformateur3Acteur implements IActeur {
 	// Renvoie les indicateurs
 	public List<Variable> getIndicateurs() {
 		List<Variable> res = new ArrayList<Variable>();
+
 		res.add(this.stocks.getTotalStockVolume());
 		return res;
 	}
@@ -98,6 +99,7 @@ public class Transformateur3Acteur implements IActeur {
 	// Renvoie les journaux
 	public List<Journal> getJournaux() {
 		List<Journal> res=new ArrayList<Journal>();
+		//* @author : Pol Bailleul */
 		res.add(this.journal);
 		return res;
 	}
@@ -143,19 +145,17 @@ public class Transformateur3Acteur implements IActeur {
 		return Filiere.LA_FILIERE;
 	}
 
-	public Transformateur3Stocks getStocks() {
-		return this.stocks;
-	}
 
 	public double getQuantiteEnStock(IProduit p, int cryptogramme) {
 		if (this.cryptogramme==cryptogramme) { // c'est donc bien un acteur assermente qui demande a consulter la quantite en stock
-			if (this.stocks != null) {
-				return this.stocks.getQuantiteEnStock(p);
-			} else {
-				return 0.0;
-			}
+			return this.stocks.getQuantiteEnStock(p);
 		} else {
 			return 0; // Les acteurs non assermentes n'ont pas a connaitre notre stock
 		}
 	}
+
+	public Transformateur3Stocks getStocks() {
+		return this.stocks;
+	}
+
 }
