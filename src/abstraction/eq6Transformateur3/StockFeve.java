@@ -51,11 +51,15 @@ public class StockFeve{
     public int getQuantite(Feve produit) {
         return stock.getOrDefault(produit, 0);
     }
-
-    // Afficher le stock
-    public void afficherStock() {
-        for (String produit : stock.keySet()) {
-            System.out.println(produit + " : " + stock.get(produit));
+    
+    // Retourne le volume total (somme des quantites) du stock de feves
+    public int getVolumeTotal() {
+        int total = 0;
+        for (Integer q : stock.values()) {
+            if (q != null) {
+                total += q;
+            }
         }
+        return total;
     }
 }
