@@ -8,16 +8,18 @@ import abstraction.eqXRomu.encheres.MiseAuxEncheres;
 /** 
  * @author Elise Dossal
  */
-public class Producteur1VendeurBourse implements IVendeurAuxEncheres{
+public class Producteur1VendeurBourse extends Producteur1AcheteurBourse {//} implements IVendeurAuxEncheres{
+///*
 
-    // Elise Dossal
+    public Producteur1VendeurBourse(){
+        super();
 
-    private Producteur1Acteur acteur;
-
-    public Producteur1VendeurBourse(Producteur1Acteur acteur){
-        this.acteur= acteur;
-
-    
     }
 
+    public void next(){
+        super.next();
+        
+    }
+
+//*/
 }

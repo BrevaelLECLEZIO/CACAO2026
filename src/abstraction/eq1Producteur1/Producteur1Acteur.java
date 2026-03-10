@@ -50,9 +50,6 @@ public class Producteur1Acteur implements IActeur {
 	public void next() {
 		this.journal.ajouter("Check");
 
-		Producteur1VendeurBourse vendeur = new Producteur1VendeurBourse(this)
-		Feve F_MQ = Feve.F_MQ ;
-		MiseAuxEncheres mise = new MiseAuxEncheres(vendeur, F_MQ, 120., true);
 
 	}
 
