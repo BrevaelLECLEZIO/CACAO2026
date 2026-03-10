@@ -56,7 +56,4 @@ public class StockFeve{
     public Set<Feve> getFeves() {
     return stock.keySet();
 }
-
-    
-
 }

@@ -136,6 +136,4 @@ public class Transformateur3Acteur implements IActeur {
 			return 0; // Les acteurs non assermentes n'ont pas a connaitre notre stock
 		}
 	}
-
-
 }
