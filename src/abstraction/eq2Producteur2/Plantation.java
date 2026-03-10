@@ -1,6 +1,6 @@
 package abstraction.eq2Producteur2;
-import java.util.concurrent.ThreadLocalRandom;
 import abstraction.eqXRomu.produits.Feve;
+/** @author Paul */
 // @PAUL DELACOUR
 public class Plantation {
     private Feve typeFeve;          // Type de fèves cultivées
@@ -66,6 +66,15 @@ public class Plantation {
                 throw new IllegalArgumentException("Type de fève non reconnu !");
         }
     }
+
+
+
+    // Méthode pour vérifier si la plantation est productive
+    public boolean estProductive() {
+        return age >= tempsAvantProduction && age < dureeDeVie;
+    }
+
+
 
 
     /**
