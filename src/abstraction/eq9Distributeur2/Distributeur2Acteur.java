@@ -101,6 +101,9 @@ public class Distributeur2Acteur implements IActeur {
 	}
 
 	// Renvoie les journaux
+		/**
+         * @author Paul Juhel
+         */ 
 	public List<Journal> getJournaux() {
 		List<Journal> res=new ArrayList<Journal>();
 		res.add(journal);
