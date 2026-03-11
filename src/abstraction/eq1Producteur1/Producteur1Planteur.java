@@ -3,6 +3,9 @@ import java.util.ArrayList;
 import java.util.List;
 import abstraction.eqXRomu.produits.Feve;
 
+/**
+ * @author Elise Dossal
+ */
 
 public class Producteur1Planteur extends Producteur1Stock{
 
