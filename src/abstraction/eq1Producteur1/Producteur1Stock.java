@@ -11,7 +11,7 @@ import abstraction.eqXRomu.produits.Feve;
  */
 
 
-public class Producteur1Stock {
+public class Producteur1Stock extends Producteur1Acteur{
 
     private List<Lot> lots;
     private double totalStock= 0;
@@ -23,6 +23,7 @@ public class Producteur1Stock {
     private double BQ_E_Stock = 0;
 
     public Producteur1Stock(){
+        super();
         this.lots= new ArrayList<Lot>();
     }
 

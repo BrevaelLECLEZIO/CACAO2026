@@ -11,9 +11,9 @@ import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.produits.Feve;
 
 /**
- * @author Théophile Trillat
+ * @author Théophile Trillat & Elise Dossal
  */
-public class Producteur1AcheteurBourse extends Producteur1Acteur implements IAcheteurBourse {
+public class Producteur1AcheteurBourse extends Producteur1Planteur implements IAcheteurBourse {
 
     public Producteur1AcheteurBourse() {
         super();
@@ -34,11 +34,7 @@ public class Producteur1AcheteurBourse extends Producteur1Acteur implements IAch
 
     @Override
     public double demande(Feve f, double cours) {
-        if (f.getGamme()==Gamme.BQ){
-            return 80;
-        }
-        else{
-            return 0;
-        }
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'demande'");
     }
 }
