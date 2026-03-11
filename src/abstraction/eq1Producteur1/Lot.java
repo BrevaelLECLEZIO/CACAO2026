@@ -13,7 +13,7 @@ public class Lot {
     private double quantite;
 
 
-    public Lot(Feve f, int etapeCreation, int etapePeremption, double quantite){
+    public Lot(Feve f, int etapeCreation, double quantite){
         this.f = f;
         this.etapeCreation=etapeCreation;
         this.quantite= quantite;
@@ -38,6 +38,9 @@ public class Lot {
 
     public Feve getGamme(){
         this.setGamme();
+        if(this.quantite == 0 ){
+            return null;
+        }
         return this.f;
     }
 
@@ -91,4 +94,5 @@ public class Lot {
     public void setQuantite(double newQuantite){
         this.quantite = newQuantite;
     }
+
 }
