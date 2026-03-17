@@ -152,7 +152,7 @@ public class Récolte extends Producteur2Acteur {
         int age_init = 72;
         ajouterPlantation(new Plantation(Feve.F_BQ,200000,age_init));
         ajouterPlantation(new Plantation(Feve.F_MQ,500000,age_init));
-        ajouterPlantation(new Plantation(Feve.F_HQ,300000,age_init))
+        ajouterPlantation(new Plantation(Feve.F_HQ,300000,age_init));
         ajouterPlantation(new Plantation(Feve.F_HQ_E,0,age_init));
         
     }

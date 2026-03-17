@@ -38,17 +38,8 @@ public class Producteur2Acteur implements IActeur, IVendeurBourse {
 	
 	/** @author Thomas */
 	public void initialiser() {
-    int ageMature = 72; 
-    
-    this.plantations.add(new Plantation(Feve.F_MQ, 500000, ageMature));
-    this.plantations.add(new Plantation(Feve.F_HQ, 300000, ageMature));
-    this.plantations.add(new Plantation(Feve.F_BQ, 200000, ageMature));
-    
-    journal.ajouter("Plantations initialisées : 1,000,000 hectares");
-    journal.ajouter("  - 500,000 ha de fèves MQ");
-    journal.ajouter("  - 300,000 ha de fèves HQ");
-    journal.ajouter("  - 200,000 ha de fèves BQ");
-}
+    	int ageMature = 72; 
+	}
 
 	public String getNom() {// NE PAS MODIFIER
 		return "EQ2";
