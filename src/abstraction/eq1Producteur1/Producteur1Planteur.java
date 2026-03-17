@@ -14,10 +14,16 @@ public class Producteur1Planteur extends Producteur1Stock{
     private List<Plantation> plantations = new ArrayList<Plantation>();
     private double taille_totale=10000;
 
+    /**
+     * @author Théophile Trillat
+     */
     public Producteur1Planteur(){
         super();
-        // initialiser les plantation du début
-    }
+        Plantation BQ = new Plantation(Feve.F_BQ, 850000 , -600);
+        Plantation MQ = new Plantation(Feve.F_MQ, 150000 , -600);
+        this.plantations.add(BQ);
+        this.plantations.add(MQ);
+        }
 
     public double getTaille(){
         return this. taille_totale;
