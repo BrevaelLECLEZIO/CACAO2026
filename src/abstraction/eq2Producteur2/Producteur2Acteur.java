@@ -14,37 +14,36 @@ import abstraction.eqXRomu.produits.IProduit;
 import abstraction.eqXRomu.bourseCacao.IVendeurBourse;
 
 public class Producteur2Acteur implements IActeur, IVendeurBourse {
-	
+	/** @author Thomas */
 	protected int cryptogramme;
 	protected Variable stockTotal;
 	protected HashMap<Feve, Variable> stocks;
-	private int numero = 0;
+	protected HashMap<Feve,Variable> stockvar;
+	protected HashMap<Feve,Double> fevesSeches;
 	protected Journal journal = new Journal("Journal Eq2", this);
-	protected Journal JournalBanque;
+	protected Journal JournalBanque  = new Journal("Journal Banque Eq2", this);;
+	protected List<Plantation> plantations;
+	protected Producteur2Stock stockManager;
 
-
+	/** @author Thomas */
 	public Producteur2Acteur() {
 
-		this.JournalBanque = new Journal("Journal Banque Eq2", this);
-		// Thomas
 		this.stocks = new HashMap<Feve, Variable>();
 		for (Feve f : Feve.values()) {
 			this.stocks.put(f, new Variable("Stock " + f, this, 0.0));
 		}
 		this.stockTotal = new Variable("Stock Total EQ2", this, 0.0);
+		this.plantations = new ArrayList<Plantation>();
+		this.stockManager = new Producteur2Stock();
+		for (Feve f : Feve.values()) {
+			this.stocks.get(f).setValeur(this, this.stockManager.stock_initial.get(f));
+		}
 	}
 	
+	/** @author Thomas */
 	public void initialiser() {
-    for (Feve f : Feve.values()) {
-        if (f == Feve.F_MQ) {
-            this.stocks.get(f).setValeur(this, 500);
-        } else if (f == Feve.F_BQ) {
-            this.stocks.get(f).setValeur(this, 300);
-        } else if (f == Feve.F_HQ) {
-            this.stocks.get(f).setValeur(this, 200);
-        }
-    }
-}
+    	int ageMature = 72; 
+	}
 
 	public String getNom() {// NE PAS MODIFIER
 		return "EQ2";
@@ -57,9 +56,9 @@ public class Producteur2Acteur implements IActeur, IVendeurBourse {
 	////////////////////////////////////////////////////////
 	//         En lien avec l'interface graphique         //
 	////////////////////////////////////////////////////////
-
+	/** @author Thomas */
 	public void next() {
-		// Thomas
+		// Calcul du stock total
 		double total = 0.0;
 		for (Feve f : Feve.values()) {
 			Variable v = this.stocks.get(f);
@@ -69,8 +68,7 @@ public class Producteur2Acteur implements IActeur, IVendeurBourse {
 		}
 		this.stockTotal.setValeur(this, total);
 		
-		journal.ajouter("Numero : " + numero + " | Stock total : " + total + " t");
-		numero++;
+		journal.ajouter("Numero : " + Filiere.LA_FILIERE.getEtape() + " | Stock total : " + total + " fèves");
 	}
 
 	public Color getColor() {// NE PAS MODIFIER
@@ -85,6 +83,12 @@ public class Producteur2Acteur implements IActeur, IVendeurBourse {
 	public List<Variable> getIndicateurs() {
 		List<Variable> res = new ArrayList<Variable>();
 		res.add(this.stockTotal);
+		
+		// Ajouter les indicateurs pour chaque type de plantation
+		for (Plantation p : this.plantations) {
+			res.add(new Variable("Hectares " + p.getTypeFeve(), this, p.getParcelles()));
+		}
+		
 		return res;
 	}
 
@@ -95,9 +99,11 @@ public class Producteur2Acteur implements IActeur, IVendeurBourse {
 	}
 
 	// Renvoie les journaux
+	/** @author Thomas */
 	public List<Journal> getJournaux() {
 		List<Journal> res=new ArrayList<Journal>();
 		res.add(this.journal);
+		res.add(this.JournalBanque);
 		return res;
 	}
 
@@ -120,6 +126,7 @@ public class Producteur2Acteur implements IActeur, IVendeurBourse {
 	// Apres chaque operation sur votre compte bancaire, cette
 	// operation est appelee pour vous en informer
 	public void notificationOperationBancaire(double montant) {
+		this.JournalBanque.ajouter("Opération bancaire : " + montant + "€ | Solde actuel : " + this.getSolde() + "€");
 	}
 	
 	// Renvoie le solde actuel de l'acteur
@@ -153,24 +160,23 @@ public class Producteur2Acteur implements IActeur, IVendeurBourse {
 	////////////////////////////////////////////////////////
 	//             En lien avec la Bourse                //
 	////////////////////////////////////////////////////////
-
+	/** @author Simon */
 	@Override
 	public double offre(Feve f, double cours) {
-		// Thomas
 		if (f == Feve.F_MQ) {
 			return 120;
 		} else {
 			return 0.0;
 		}
 	}
-
+	/** @author Simon */
 	@Override
 	public double notificationVente(Feve f, double quantiteEnT, double coursEnEuroParT) {
 		Variable v = this.stocks.get(f);
 		double livrable = 0.0;
 		if (v != null) {
 			livrable = Math.min(quantiteEnT, v.getValeur());
-			v.setValeur(this, v.getValeur() - livrable);
+			v.retirer(this, livrable, this.cryptogramme);
 		}
 		journal.ajouter("Vente bourse : " + livrable + " t de " + f + " a " + coursEnEuroParT + "€/t");
 		return livrable;

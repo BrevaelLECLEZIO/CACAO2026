@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.lang.Integer;
 
+
+import abstraction.eqXRomu.encheres.SuperviseurVentesAuxEncheres;
+import abstraction.eqXRomu.appelDOffre.SuperviseurVentesAO;
 import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.filiere.IActeur;
 import abstraction.eqXRomu.general.Journal;
@@ -15,9 +18,12 @@ public class Transformateur2Acteur implements IActeur {
 	
 	protected int cryptogramme;
 	private List<Journal> Journaux;
+	public static Double prix_MP;
+	protected SuperviseurVentesAuxEncheres superviseur;
+	protected SuperviseurVentesAO superviseurAO;
 
-	/* Auteurs pour Journaux --> Pierre
-	*/ 
+	/** @author Pierre
+    **/
 	public Transformateur2Acteur() {
 		this.Journaux = new ArrayList<Journal>();
 		this.Journaux.add(new Journal("Ventes", this));
@@ -26,9 +32,15 @@ public class Transformateur2Acteur implements IActeur {
 		this.Journaux.add(new Journal("Achat Contrat Cadre", this));
 		this.Journaux.add(new Journal("Achat Enchère", this));
 		this.Journaux.add(new Journal("Achat Bourse", this));
+		this.Journaux.add(new Journal("Vente AO", this));
 	}
 	
 	public void initialiser() {
+
+		superviseur =(SuperviseurVentesAuxEncheres)(Filiere.LA_FILIERE.getActeur("Sup.Encheres"));
+		superviseurAO = (SuperviseurVentesAO)(Filiere.LA_FILIERE.getActeur("Sup.AO"));
+
+
 	}
 
 	public String getNom() {// NE PAS MODIFIER
@@ -43,8 +55,10 @@ public class Transformateur2Acteur implements IActeur {
 	//         En lien avec l'interface graphique         //
 	////////////////////////////////////////////////////////
 
+	/** @author Pierre
+	 */
 	public void next() {
-		for (int i = 0; i < 6; i++){
+		for (int i = 0; i < 7; i++){
 			this.Journaux.get(i).ajouter("Etape : "+ Integer.toString((Filiere.LA_FILIERE.getEtape()))+ "\n");
 		}
 	}
@@ -69,7 +83,8 @@ public class Transformateur2Acteur implements IActeur {
 		return res;
 	}
 
-	// Renvoie les journaux, auteur Maxence
+	/** @author Maxence
+    **/
 	public List<Journal> getJournaux() {
 		return this.Journaux;
 	}

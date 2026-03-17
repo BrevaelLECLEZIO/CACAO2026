@@ -8,13 +8,28 @@ import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.filiere.IActeur;
 import abstraction.eqXRomu.general.Journal;
 import abstraction.eqXRomu.general.Variable;
+import abstraction.eqXRomu.general.VariableReadOnly;
+import abstraction.eqXRomu.produits.Feve;
 import abstraction.eqXRomu.produits.IProduit;
 
+
+/** 
+ * @author Elise Dossal
+ */
 public class Producteur1Acteur implements IActeur {
-	
+
+
+	protected Journal journal;
 	protected int cryptogramme;
+	protected Variable stock;
 
 	public Producteur1Acteur() {
+
+		//Créer un journal à chaque next  
+		this.journal = new Journal("Journal "+this.getNom(), this);
+
+		//Ajoutez un indicateur du volume total de notre stock, en tonne Elise Dossal/Théophile Trillat
+		this.stock = new VariableReadOnly("stock de EQ1", "<html>Stock de EQ1</html>",this, 0.0, 10.0, 250.0);
 	}
 	
 	public void initialiser() {
@@ -33,6 +48,10 @@ public class Producteur1Acteur implements IActeur {
 	////////////////////////////////////////////////////////
 
 	public void next() {
+		int etape = Filiere.LA_FILIERE.getEtape();
+		this.journal.ajouter(String.valueOf(etape));
+
+
 	}
 
 	public Color getColor() {// NE PAS MODIFIER
@@ -46,6 +65,7 @@ public class Producteur1Acteur implements IActeur {
 	// Renvoie les indicateurs
 	public List<Variable> getIndicateurs() {
 		List<Variable> res = new ArrayList<Variable>();
+		res.add(this.stock);
 		return res;
 	}
 
@@ -58,6 +78,7 @@ public class Producteur1Acteur implements IActeur {
 	// Renvoie les journaux
 	public List<Journal> getJournaux() {
 		List<Journal> res=new ArrayList<Journal>();
+		res.add(this.journal);
 		return res;
 	}
 

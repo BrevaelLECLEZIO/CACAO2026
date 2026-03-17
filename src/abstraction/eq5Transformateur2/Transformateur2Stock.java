@@ -22,11 +22,9 @@ public class Transformateur2Stock extends Transformateur2Acteur{
     
     // Constructeur
 
-    /* Auteur Partie Feve --> Pierre
-    // Auteur Partie Chocolat --> Raphaël
-    */
-
-    // Constructeur 
+    /** @author Pierre
+     * @author Raphaël
+    **/ 
     public Transformateur2Stock(){
         this.stock_feve = new HashMap<Feve, Double>();
         this.stock_feve.put(Feve.F_BQ, 0.0);
@@ -45,82 +43,68 @@ public class Transformateur2Stock extends Transformateur2Acteur{
     }
 
     // Méthodes
+    
+	/** @author Pierre
+    **/
+	public List<Variable> getIndicateurs() {
+		List<Variable> res = super.getIndicateurs();
+        res.add(new Variable("Stock Fève", this, getStock_feve_total()));
+        res.add(new Variable("Stock Chocolat", this, getStock_feve_total()));
+		return res;
+	}
 
-    // Auteur Pierre
-    public Double getStock_feve(){
+    /** @author Pierre
+    **/
+    public Double getStock_feve_total(){
         return this.stock_feve.get(Feve.F_BQ) + this.stock_feve.get(Feve.F_BQ_E) + this.stock_feve.get(Feve.F_MQ) + this.stock_feve.get(Feve.F_MQ_E) + this.stock_feve.get(Feve.F_HQ) + this.stock_feve.get(Feve.F_HQ_E);
         }
     
-    // Auteur Pierre
-    public Double getStock_chocolat(){
+    /** @author Pierre
+    **/
+    public Double getStock_chocolat_total(){
         return this.stock_chocolat.get(Chocolat.C_BQ) + this.stock_feve.get(Chocolat.C_BQ_E) + this.stock_feve.get(Chocolat.C_MQ) + this.stock_feve.get(Chocolat.C_MQ_E) + this.stock_feve.get(Chocolat.C_HQ) + this.stock_feve.get(Chocolat.C_HQ_E);
-        }
-
-    // Auteur Pierre
-    public void add_feve(Double n, Feve Q){
-        if (Q == Feve.F_BQ){
-            this.stock_feve.put(Feve.F_BQ, this.stock_feve.get(Feve.F_BQ) + n);
-        } else if (Q == Feve.F_BQ_E){
-            this.stock_feve.put(Feve.F_BQ_E, this.stock_feve.get(Feve.F_BQ_E) + n);
-        } else if (Q == Feve.F_MQ){
-            this.stock_feve.put(Feve.F_MQ, this.stock_feve.get(Feve.F_MQ) + n);
-        } else if (Q == Feve.F_MQ_E){
-            this.stock_feve.put(Feve.F_MQ_E, this.stock_feve.get(Feve.F_MQ_E) + n);
-        } else if (Q == Feve.F_HQ){
-            this.stock_feve.put(Feve.F_HQ, this.stock_feve.get(Feve.F_HQ) + n);
-        } else {
-            this.stock_feve.put(Feve.F_HQ_E, this.stock_feve.get(Feve.F_HQ_E) + n);
-        }
+    }
+    /**
+     * @author Maxence
+     */
+    public Double getStock_feve(IProduit q){
+        return this.stock_feve.get(q);
+    }
+    /**
+     * @author Maxence
+     */
+    public Double getStock_chocolat(IProduit q){
+        return this.stock_chocolat.get(q);
+    }
+    /** @author Pierre
+    **/
+    public void add_feve(Double n, Feve q){
+        assert n >= 0;
+        this.stock_feve.put(q, this.stock_feve.get(q) + n);
     }
 
-    // Auteur Pierre
-    public void remove_feve(Double n, Feve Q){
-        if (Q == Feve.F_BQ & n <= this.stock_feve.get(Feve.F_BQ)){
-            this.stock_feve.put(Feve.F_BQ, this.stock_feve.get(Feve.F_BQ) - n);
-        } else if (Q == Feve.F_BQ_E & n <= this.stock_feve.get(Feve.F_BQ_E)){
-            this.stock_feve.put(Feve.F_BQ_E, this.stock_feve.get(Feve.F_BQ_E) - n);
-        } else if (Q == Feve.F_MQ & n <= this.stock_feve.get(Feve.F_MQ)){
-            this.stock_feve.put(Feve.F_MQ, this.stock_feve.get(Feve.F_MQ) - n);
-        } else if (Q == Feve.F_MQ_E & n <= this.stock_feve.get(Feve.F_MQ_E)){
-            this.stock_feve.put(Feve.F_MQ_E, this.stock_feve.get(Feve.F_MQ_E) - n);
-        } else if (Q == Feve.F_HQ & n <= this.stock_feve.get(Feve.F_HQ)){
-            this.stock_feve.put(Feve.F_HQ, this.stock_feve.get(Feve.F_HQ) - n);
-        } else if (n <= this.stock_feve.get(Feve.F_HQ_E)){
-            this.stock_feve.put(Feve.F_HQ_E, this.stock_feve.get(Feve.F_HQ_E) - n);
+    /** @author Pierre
+    **/
+    public void remove_feve(Double n, Feve q){
+        assert n <= 0;
+        if (n <= this.stock_feve.get(q)){
+            this.stock_feve.put(q, this.stock_feve.get(q) - n);
         }
     }
 
-    // Auteur Raphaël
-    public void add_chocolat(Double n, Chocolat Q){
-        if (Q == Chocolat.C_BQ){
-            this.stock_chocolat.put(Chocolat.C_BQ, this.stock_chocolat.get(Chocolat.C_BQ) + n);
-        }else if (Q == Chocolat.C_BQ_E){
-            this.stock_chocolat.put(Chocolat.C_BQ_E, this.stock_chocolat.get(Chocolat.C_BQ_E) + n);
-        } else if (Q == Chocolat.C_MQ){
-            this.stock_chocolat.put(Chocolat.C_MQ, this.stock_chocolat.get(Chocolat.C_MQ) + n);
-        } else if (Q == Chocolat.C_MQ_E){
-            this.stock_chocolat.put(Chocolat.C_MQ_E, this.stock_chocolat.get(Chocolat.C_MQ_E) + n);
-        } else if (Q == Chocolat.C_HQ){
-            this.stock_chocolat.put(Chocolat.C_HQ, this.stock_chocolat.get(Chocolat.C_HQ) + n);
-        } else { 
-            this.stock_chocolat.put(Chocolat.C_HQ_E, this.stock_chocolat.get(Chocolat.C_HQ_E) + n); 
-            }
+    /** @author Raphaël
+    **/
+    public void add_chocolat(Double n, Chocolat q){
+        assert n >= 0;
+        this.stock_chocolat.put(q, this.stock_chocolat.get(q) + n);
     }
 
-    // Auteur Raphaël
-    public void remove_chocolat(Double n, Chocolat Q){
-        if (Q == Chocolat.C_BQ & n <= this.stock_chocolat.get(Chocolat.C_BQ)){
-            this.stock_chocolat.put(Chocolat.C_BQ, this.stock_chocolat.get(Chocolat.C_BQ) - n);
-        }else if (Q == Chocolat.C_BQ_E & n <= this.stock_chocolat.get(Chocolat.C_BQ_E)){
-            this.stock_chocolat.put(Chocolat.C_BQ_E, this.stock_chocolat.get(Chocolat.C_BQ_E) - n);
-        } else if (Q == Chocolat.C_MQ & n <= this.stock_chocolat.get(Chocolat.C_MQ)){
-            this.stock_chocolat.put(Chocolat.C_MQ, this.stock_chocolat.get(Chocolat.C_MQ) - n);
-        } else if (Q == Chocolat.C_MQ_E & n <= this.stock_chocolat.get(Chocolat.C_MQ_E)){
-            this.stock_chocolat.put(Chocolat.C_MQ_E, this.stock_chocolat.get(Chocolat.C_MQ_E) - n);
-        } else if (Q == Chocolat.C_HQ & n <= this.stock_chocolat.get(Chocolat.C_HQ)){
-            this.stock_chocolat.put(Chocolat.C_HQ, this.stock_chocolat.get(Chocolat.C_HQ) - n);
-        } else if (n <= this.stock_chocolat.get(Chocolat.C_HQ_E)){ 
-            this.stock_chocolat.put(Chocolat.C_HQ_E, this.stock_chocolat.get(Chocolat.C_HQ_E) - n); 
+    /** @author Raphaël
+    **/
+    public void remove_chocolat(Double n, Chocolat q){
+        assert n <= 0;
+        if (n <= this.stock_chocolat.get(q)){
+            this.stock_chocolat.put(q, this.stock_chocolat.get(q) - n); 
             }
     }
 
