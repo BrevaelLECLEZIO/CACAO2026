@@ -5,9 +5,7 @@ import java.util.List;
 import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.produits.Feve;
 
-/**
- * @author Elise Dossal
- */
+
 
 public class Producteur1Planteur extends Producteur1Stock{
 
@@ -25,6 +23,9 @@ public class Producteur1Planteur extends Producteur1Stock{
         this.plantations.add(MQ);
         }
 
+    /**
+     * @author Elise Dossal
+     */
     public double getTaille(){
         return this. taille_totale;
     }
@@ -37,12 +38,16 @@ public class Producteur1Planteur extends Producteur1Stock{
         this.plantations.add(newP);
     }
 
-
+    /**
+     * @author Elise Dossal
+     */
     public void couper(int i){
         this.plantations.remove(i);
     }
 
-
+    /**
+     * @author Elise Dossal
+     */
     public void collecter(){ //On crée un lot de chauqe qualité qui regroupe plusieurs plantations pour ne pas avoir des lots qui ne différent que par la quantité
         double lot_HQ = 0;
         double lot_HQ_E = 0;
@@ -95,6 +100,10 @@ public class Producteur1Planteur extends Producteur1Stock{
 
     }
 
+    
+    /**
+     * @author Elise Dossal
+     */
     public void next(){
         super.next();
         int etape = Filiere.LA_FILIERE.getEtape();
