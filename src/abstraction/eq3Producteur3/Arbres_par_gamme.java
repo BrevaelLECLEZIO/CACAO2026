@@ -13,15 +13,15 @@ public class Arbres_par_gamme {
     private Feve feve;
     // Liste de 961 éléments (de l'indice 0 à 960)
     private List<Integer> distributionAge; 
-    private int nbArbresTotal;
+    private int nbHectareTotal;
 
     
     public Arbres_par_gamme(Feve feve) {
         this.feve = feve;
         this.distributionAge = new ArrayList<>(961);
-        this.nbArbresTotal = 961*350;
+        this.nbHectareTotal = 961*350;
         
-        int arbresParAge = nbArbresTotal / 961;
+        int arbresParAge = nbHectareTotal / 961;
 
         for (int i = 0; i <= 960; i++) {
             this.distributionAge.add(arbresParAge);
@@ -88,7 +88,7 @@ public class Arbres_par_gamme {
             coeffGamme = 30; 
         }
         
-        return totalCabosses * coeffGamme;
+        return totalCabosses * coeffGamme * 1000;
     }
 
 
