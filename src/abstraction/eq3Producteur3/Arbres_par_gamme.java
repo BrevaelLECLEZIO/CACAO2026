@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+/** @author Victor Vannier-Moreau, Guillaume Leroy et Vassili Spiridonov */
 public class Arbres_par_gamme {
     private Feve feve;
     // Liste de 961 éléments (de l'indice 0 à 960)
