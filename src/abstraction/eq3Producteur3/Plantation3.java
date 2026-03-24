@@ -10,9 +10,9 @@ import java.util.Map;
 
 public class Plantation3 {
     // On stocke un objet Arbres_par_gamme pour chaque type de fève précis
-    private Map<Feve, Arbres_par_gamme> plantation;
     /** @author Vassili Spiridonov*/
-
+    private Map<Feve, Arbres_par_gamme> plantation;
+    
     public Plantation3() {
         /** @author Vassili Spiridonov*/
         this.plantation = new HashMap<>();
@@ -61,18 +61,19 @@ public class Plantation3 {
      * Retourne la répartition du terrain en pourcentage pour chaque type de fève
      */
     public Map<Feve, Double> getRepartitionTerrain() {
-    Map<Feve, Double> repartition = new HashMap<>();
-    double surfaceTotale = this.getNbHectareTotal();
+        /** @author Victor Vannier-Moreau*/
+        Map<Feve, Double> repartition = new HashMap<>();
+        double surfaceTotale = this.getNbHectareTotal();
 
-    // Calculer la part de plantation en hectare de terrain de chaque gamme
-    if (surfaceTotale > 0) { // Sécurité pour éviter la division par zéro
-        for (Feve f : plantation.keySet()) {
-            int surfaceGamme = plantation.get(f).getNbHectare();
-            double pourcentage = (surfaceGamme / surfaceTotale) * 100.0;
-            repartition.put(f, pourcentage);
+        // Calculer la part de plantation en hectare de terrain de chaque gamme
+        if (surfaceTotale > 0) { // Sécurité pour éviter la division par zéro
+            for (Feve f : plantation.keySet()) {
+                int surfaceGamme = plantation.get(f).getNbHectare();
+                double pourcentage = (surfaceGamme / surfaceTotale) * 100.0;
+                repartition.put(f, pourcentage);
+            }
         }
-    }
-    return repartition;
+        return repartition;
 }
 
 
