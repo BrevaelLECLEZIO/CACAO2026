@@ -6,6 +6,7 @@ import abstraction.eqXRomu.produits.Feve;
 import abstraction.eqXRomu.produits.Gamme;
 import java.util.List;
 
+/** @author Guillaume Leroy */
 public class Producteur3Stock {
     private HashMap<Feve, List<Double>> stock;
 
