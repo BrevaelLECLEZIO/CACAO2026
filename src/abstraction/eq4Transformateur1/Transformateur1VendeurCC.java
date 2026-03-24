@@ -45,8 +45,9 @@ public class Transformateur1VendeurCC extends Transformateur1AcheteurBourse impl
         return quantite;
         }
         else{
+            double alivrer=this.getStocksProduit(produit);
             this.setStocksProduit(produit, 0);
-            return this.getStocksProduit(produit);
+            return alivrer;
         }
     }
 }
