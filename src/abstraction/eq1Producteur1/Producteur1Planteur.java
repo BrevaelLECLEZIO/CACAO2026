@@ -1,5 +1,6 @@
 package abstraction.eq1Producteur1;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import abstraction.eqXRomu.filiere.Filiere;
@@ -100,7 +101,8 @@ public class Producteur1Planteur extends Producteur1Stock{
 
     }
 
-    
+
+
     /**
      * @author Elise Dossal
      */

@@ -31,7 +31,6 @@ public class Producteur1Stock extends Producteur1Acteur{
         this.add_lot(Feve.F_MQ, 6000,0);
 
 
-        System.out.println("1 "+this.totalStock);
         this.stockTot.setValeur(this, totalStock, this.cryptogramme);
     }
 
@@ -52,7 +51,6 @@ public class Producteur1Stock extends Producteur1Acteur{
     public void changeStock(Feve f, double quantite){
         this.stock.put(f, this.stock.get(f) + quantite);
         this.totalStock += quantite;
-        System.out.println("3 "+this.totalStock);
     }
 
 
@@ -88,7 +86,6 @@ public class Producteur1Stock extends Producteur1Acteur{
     public void add_lot( Feve f, double quantite, int etape){
         Lot lot = new Lot(f, etape, quantite);
         this.lots.add(lot);  // les lots sont trié du plus vieux au plus récent
-        System.out.println("2 "+this.totalStock);
         this.changeStock(f, quantite);
     }
 
@@ -97,7 +94,6 @@ public class Producteur1Stock extends Producteur1Acteur{
     }
 
     public List<Lot> takeFeve(Feve f,double quantite){  // Permet d'extraire des stocks les plus vieilles fêves de la qualité voulue
-        System.out.println("take feve "+ quantite);
         if(quantite > this.stock.get(f)){
             return null;
 
@@ -127,9 +123,8 @@ public class Producteur1Stock extends Producteur1Acteur{
             }
         }
 
-        System.out.println("take feve " + this.totalStock);
         this.stockTot.setValeur(this, this.totalStock, this.cryptogramme);
-        System.out.println("--->"+stockTot.getValeur());
+
 
         return take_out;
     }
@@ -143,9 +138,7 @@ public class Producteur1Stock extends Producteur1Acteur{
 
 		// donne le stock à la fin de la période après tous les échanges
         // mettre à jour stockTot
-        System.out.println("last " + this.totalStock);
         this.stockTot.setValeur(this, this.totalStock, this.cryptogramme);
-        System.out.println("--->"+stockTot.getValeur());
         // Permet de suivre le stock de fève
 		this.journal.ajouter( "Stock fève BQ :"+String.valueOf(this.stock.get(Feve.F_BQ)));
         this.journal.ajouter( "Stock fève BQ_E :"+String.valueOf(this.stock.get(Feve.F_BQ_E)));
