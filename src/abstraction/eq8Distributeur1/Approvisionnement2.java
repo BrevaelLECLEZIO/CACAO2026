@@ -10,6 +10,7 @@ import java.util.Map;
 import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.produits.ChocolatDeMarque;
 import abstraction.eqXRomu.produits.Gamme;
+import abstraction.eqXRomu.produits.IProduit;
 
 /** @author Ewen Landron */
 public class Approvisionnement2 {
@@ -197,8 +198,9 @@ public class Approvisionnement2 {
         return 0.0; 
     }
 
-    private Map<ChocolatDeMarque, Double> initialiserStockPredit() {
+    private Map<IProduit, Double> initialiserStockPredit() {
         // TODO: Récupérer les stocks réels de l'acteur
-        return new HashMap<>();
+        return Distributeur1Acteur.Stock;
+        
     }
 }

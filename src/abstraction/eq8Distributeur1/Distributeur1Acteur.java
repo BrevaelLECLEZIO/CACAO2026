@@ -5,15 +5,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import abstraction.eqXRomu.clients.ClientFinal;
 import abstraction.eqXRomu.filiere.Banque;
 import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.filiere.IActeur;
+import abstraction.eqXRomu.filiere.IDistributeurChocolatDeMarque;
 import abstraction.eqXRomu.general.Journal;
 import abstraction.eqXRomu.general.Variable;
 import abstraction.eqXRomu.produits.ChocolatDeMarque;
 import abstraction.eqXRomu.produits.IProduit;
 
-public class Distributeur1Acteur implements IActeur {
+public class Distributeur1Acteur implements IActeur, IDistributeurChocolatDeMarque {
 	
 	protected Journal journal0;/** @author Ewen Landron */
 	protected Journal journal1;/** @author Alexandre Cornet */
@@ -96,6 +98,10 @@ public class Distributeur1Acteur implements IActeur {
 		}
 		this.journal2.ajouter("----------------------------------------------");
 		//Journal Frais
+		if(this.volumerayon<this.TailleRayon){
+			b.payerCout(b,this.cryptogramme,"Taille de Rayon",this.TailleRayon-this.volumerayon);
+			this.TailleRayon=this.volumerayon;
+		}
 		this.journal4.ajouter("Numéro de tour : " + Filiere.LA_FILIERE.getEtape());
 		b.payerCout(this, this.cryptogramme, "Frais de Rayonnage", TailleRayon*0.01);
 		this.journal4.ajouter("Frais de Rayon : "+TailleRayon*0.01 +" €");
@@ -254,5 +260,30 @@ public class Distributeur1Acteur implements IActeur {
 		} else {
 			return 0; // Les acteurs non assermentes n'ont pas a connaitre notre stock
 		}
+	}
+	@Override
+	public double prix(ChocolatDeMarque choco) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'prix'");
+	}
+	@Override
+	public double quantiteEnVente(ChocolatDeMarque choco, int crypto) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'quantiteEnVente'");
+	}
+	@Override
+	public double quantiteEnVenteTG(ChocolatDeMarque choco, int crypto) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'quantiteEnVenteTG'");
+	}
+	@Override
+	public void vendre(ClientFinal client, ChocolatDeMarque choco, double quantite, double montant, int crypto) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'vendre'");
+	}
+	@Override
+	public void notificationRayonVide(ChocolatDeMarque choco, int crypto) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'notificationRayonVide'");
 	}
 }
