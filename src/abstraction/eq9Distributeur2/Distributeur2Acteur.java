@@ -6,17 +6,23 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
+import abstraction.eqXRomu.clients.ClientFinal;
 import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.filiere.IActeur;
+import abstraction.eqXRomu.filiere.IDistributeurChocolatDeMarque;
 import abstraction.eqXRomu.general.Journal;
 import abstraction.eqXRomu.general.Variable;
+import abstraction.eqXRomu.produits.ChocolatDeMarque;
 import abstraction.eqXRomu.produits.IProduit;
 
-public class Distributeur2Acteur implements IActeur {
+public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarque {
 	protected int cryptogramme;
 	protected Journal journal;
 	protected Map<IProduit, Double> stock;
 	protected Variable indicateurStockTotal;
+	protected Map<ChocolatDeMarque, Double> prixParProduit;
+    protected double prixBase = 8.5;
+    protected double capaciteRayonKg = 50000.0;
 
 	/**
      * @author Paul Juhel
@@ -33,14 +39,20 @@ public class Distributeur2Acteur implements IActeur {
          * @author Anass Ouisrani
          */ 
 	public void initialiser() {
-		this.stock.clear();
-		List<abstraction.eqXRomu.produits.ChocolatDeMarque> produits = abstraction.eqXRomu.filiere.Filiere.LA_FILIERE.getChocolatsProduits();
-		if (produits != null && !produits.isEmpty()) {
-			IProduit produit = produits.get(0);
-			this.stock.put(produit, 100000.0); // 100 tonnes = 100000 kg
-		}
-		this.indicateurStockTotal.setValeur(this, getStockTotal());
-	}
+        this.stock.clear();
+        List<abstraction.eqXRomu.produits.ChocolatDeMarque> produits = abstraction.eqXRomu.filiere.Filiere.LA_FILIERE.getChocolatsProduits();
+        if (produits != null && !produits.isEmpty()) {
+            IProduit produit = produits.get(0);
+            this.stock.put(produit, 100000.0);
+        }
+        this.indicateurStockTotal.setValeur(this, getStockTotal());
+
+        //  initialisation des prix
+        this.prixParProduit = new HashMap<>();
+        for (ChocolatDeMarque choco : Filiere.LA_FILIERE.getChocolatsProduits()) {
+            this.prixParProduit.put(choco, prixBase);
+        }
+    }
 
 	public String getNom() {// NE PAS MODIFIER
 		return "EQ9";
@@ -160,5 +172,54 @@ public class Distributeur2Acteur implements IActeur {
         } else {
             return 0; 
         }
+    }
+	////////////////////////////////////////////////////////
+    //         IDistributeurChocolatDeMarque              //
+    ////////////////////////////////////////////////////////
+
+@Override
+    public double prix(ChocolatDeMarque choco) {
+        return prixParProduit.getOrDefault(choco, prixBase);
+    }
+
+@Override
+    public double quantiteEnVente(ChocolatDeMarque choco, int crypto) {
+        if (crypto != this.cryptogramme) {
+            this.journal.ajouter("Tentative accès non autorisé quantiteEnVente");
+            return 0.0;
+        }
+        double qStock = this.stock.getOrDefault(choco, 0.0);
+        return Math.min(qStock, this.capaciteRayonKg);
+    }
+
+@Override
+    public double quantiteEnVenteTG(ChocolatDeMarque choco, int crypto) {
+        if (crypto != this.cryptogramme) {
+            this.journal.ajouter("Tentative accès non autorisé quantiteEnVenteTG");
+            return 0.0;
+        }
+        return quantiteEnVente(choco, crypto) * 0.10;
+    }
+
+@Override
+    public void vendre(ClientFinal client, ChocolatDeMarque choco, double quantite, double montant, int crypto) {
+        if (crypto != this.cryptogramme) {
+            this.journal.ajouter("Tentative accès non autorisé vendre");
+            return;
+        }
+        double stockActuel = this.stock.getOrDefault(choco, 0.0);
+        if (quantite <= 0 || quantite > stockActuel) {
+            this.journal.ajouter("Stock insuffisant pour " + choco.getNom() + ": demandé " + quantite + " kg, dispo " + stockActuel + " kg");
+            return;
+        }
+        this.stock.put(choco, stockActuel - quantite);
+        this.indicateurStockTotal.setValeur(this, getStockTotal());
+        this.journal.ajouter("Vente de " + quantite + " kg de " + choco.getNom() + " pour " + montant + " €");
+}
+
+@Override
+    public void notificationRayonVide(ChocolatDeMarque choco, int crypto) {
+        if (crypto != this.cryptogramme) return;
+        this.journal.ajouter("Rayon vide : " + choco.getNom());
     }
 }
