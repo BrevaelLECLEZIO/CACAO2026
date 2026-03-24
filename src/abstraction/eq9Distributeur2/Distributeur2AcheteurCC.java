@@ -13,9 +13,8 @@ import java.util.List;
 
 /**
  * @author Paul Juhel
- * Distributeur2AcheteurCC - Implémentation simple des contrats cadres pour le distributeur
- * Hérite de Distributeur2Acteur et implémente IAcheteurContratCadre
  */
+
 public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements IAcheteurContratCadre {
 
     // Superviseur des contrats cadres
@@ -30,9 +29,6 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
     // score de fidélité par vendeur logique opportuniste
     protected java.util.Map<IVendeurContratCadre, Double> scoreFidelite;
 
-    /**
-     * Constructeur
-     */
     public Distributeur2AcheteurCC() {
         super();
         this.contratsEnCours = new LinkedList<ExemplaireContratCadre>();
@@ -40,24 +36,17 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
         this.scoreFidelite = new java.util.HashMap<IVendeurContratCadre, Double>();
     }
 
-    /**
-     * Initialisation - appelée au début de la simulation
-     */
     @Override
     public void initialiser() {
         super.initialiser();
         this.superviseurCC = (SuperviseurVentesContratCadre) Filiere.LA_FILIERE.getActeur("Sup.CCadre");
-        this.journal.ajouter("🔗 Initialisation des contrats cadres");
+        this.journal.ajouter("Initialisation des CC");
     }
 
-    /**
-     * Méthode appelée à chaque étape
-     */
     @Override
     public void next() {
         super.next();
 
-        // Nettoyer les contrats terminés
         List<ExemplaireContratCadre> aRetirer = new LinkedList<ExemplaireContratCadre>();
         for (ExemplaireContratCadre contrat : this.contratsEnCours) {
             if (contrat.getQuantiteRestantALivrer() <= 0.0) {
@@ -72,9 +61,7 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
         this.journal.ajouter("Contrats en cours : " + this.contratsEnCours.size());
     }
 
-    /**
-     * Evaluation de la fidélité fournisseur et affichage des décisions
-     */
+
     protected void evaluerFideliteContrats() {
         for (ExemplaireContratCadre contrat : this.contratsEnCours) {
             IVendeurContratCadre vendeur = contrat.getVendeur();
@@ -87,15 +74,14 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
         }
     }
 
-    // =================================================================
     //         IMPLEMENTATION DE L'INTERFACE IAcheteurContratCadre
-    // =================================================================
 
     /**
      * Indique si l'acheteur est prêt à faire un contrat cadre pour ce produit
      * @param produit le produit concerné
      * @return true si prêt à négocier, false sinon
      */
+
     @Override
     public boolean achete(IProduit produit) {
         // On accepte tous les contrats cadres pour les chocolats de marque
@@ -107,7 +93,7 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
     }
 
     /**
-     * Propose une contre-proposition sur l'échéancier
+     * Contre-proposition de l'échéancier
      * @param contrat le contrat en négociation
      * @return l'échéancier proposé, null pour abandonner, ou le même pour accepter
      */
@@ -115,13 +101,14 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
     public Echeancier contrePropositionDeLAcheteur(ExemplaireContratCadre contrat) {
         Echeancier propositionVendeur = contrat.getEcheancier();
 
-        // Accepter l'échéancier tel quel (stratégie simple)
+        // Accepter l'échéancier tel quel
+        // A MODIFIER EN V2
         this.journal.ajouter("Acceptation de l'échéancier pour " + contrat.getProduit());
         return propositionVendeur;
     }
 
     /**
-     * Propose une contre-proposition sur le prix
+     * Contre-proposition sur le prix
      * @param contrat le contrat en négociation
      * @return le prix proposé, négatif pour abandonner, ou le même pour accepter
      */
@@ -129,7 +116,9 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
     public double contrePropositionPrixAcheteur(ExemplaireContratCadre contrat) {
         double prixPropose = contrat.getPrix();
 
-        // Accepter le prix tel quel (stratégie simple)
+        // Accepter le prix tel quel
+        // A MODIFIER EN V2
+
         this.journal.ajouter("Acceptation du prix " + prixPropose + "€/t pour " + contrat.getProduit());
         return prixPropose;
     }
@@ -142,7 +131,7 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
     public void notificationNouveauContratCadre(ExemplaireContratCadre contrat) {
         this.contratsEnCours.add(contrat);
 
-        // Mise à jour fidélité (garde si contrat priorisé)
+        // Mise à jour fidélité
         IVendeurContratCadre v = contrat.getVendeur();
         double oldScore = this.scoreFidelite.getOrDefault(v, 0.3);
         double nouvelScore = Math.min(1.0, oldScore + 0.10);
@@ -154,7 +143,7 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
     }
 
     /**
-     * Détermination opportuniste de conservation d'un fournisseur
+     * Détermination de conservation d'un fournisseur
      */
     public boolean garderFournisseur(IVendeurContratCadre vendeur, double prixActuel, double prixConcurrentMax) {
         double remiseHistorique = this.scoreFidelite.getOrDefault(vendeur, 0.3);
@@ -175,9 +164,10 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
      * @param quantiteEnTonnes la quantité livrée (en tonnes)
      * @param contrat le contrat concerné
      */
+
     @Override
     public void receptionner(IProduit produit, double quantiteEnTonnes, ExemplaireContratCadre contrat) {
-        // Convertir en kg (1 tonne = 1000 kg)
+
         double quantiteEnKg = quantiteEnTonnes * 1000.0;
 
         // Ajouter au stock
@@ -191,10 +181,10 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
                            produit + " (contrat cadre)");
     }
 
-    // =================================================================
-    //         MÉTHODES UTILITAIRES
-    // =================================================================
 
+    //         MÉTHODES UTILITAIRES
+
+    
     /**
      * Calcule la quantité restante à livrer pour un produit donné
      * @param produit le produit
@@ -204,7 +194,7 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
         double res = 0.0;
         for (ExemplaireContratCadre contrat : this.contratsEnCours) {
             if (contrat.getProduit().equals(produit)) {
-                res += contrat.getQuantiteRestantALivrer() * 1000.0; // conversion tonnes -> kg
+                res += contrat.getQuantiteRestantALivrer() * 1000.0;
             }
         }
         return res;
