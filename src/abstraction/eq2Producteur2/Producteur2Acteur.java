@@ -57,16 +57,19 @@ public class Producteur2Acteur extends Producteur2Stock implements IActeur, IVen
 	////////////////////////////////////////////////////////
 	/** @author Thomas */
 	public void next() {
-		// Calcul du stock total
+		super.next();
+		// Synchronisation des stocks visibles avec le stock interne produit
 		double total = 0.0;
 		for (Feve f : Feve.values()) {
-			Variable v = this.stocks.get(f);
-			if (v != null) {
-				total += v.getValeur();
+			Variable v = this.stockvar.get(f);
+			double valeur = v != null ? v.getValeur() : 0.0;
+			Variable stockActeur = this.stocks.get(f);
+			if (stockActeur != null) {
+				stockActeur.setValeur(this, valeur);
 			}
+			total += valeur;
 		}
 		this.stockTotal.setValeur(this, total);
-		
 		journal.ajouter("Numero : " + Filiere.LA_FILIERE.getEtape() + " | Stock total : " + total + " fèves");
 	}
 
@@ -167,6 +170,11 @@ public class Producteur2Acteur extends Producteur2Stock implements IActeur, IVen
 	/** @author Thomas */
 	@Override
 	public double offre(Feve f, double cours) {
+		// Vendre uniquement BQ et MQ en bourse
+		if (f != Feve.F_BQ && f != Feve.F_MQ) {
+			return 0.0;
+		}
+
 		this.stockManager.setStockMin(0.1);
 
 		double offre = 0;
