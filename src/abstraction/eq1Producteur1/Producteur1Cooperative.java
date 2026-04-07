@@ -17,7 +17,7 @@ public class Producteur1Cooperative extends Producteur1Planteur{
 
 
         this.coopNonEq.put("salaire adulte",0.5);
-        this.coopNonEq.put("salaire adulte",0.2);
+        this.coopNonEq.put("salaire enfants",0.2);
         this.coopNonEq.put("taille",this.getTaillePlantation(false));
 
         int nbAdulteEq =  (int) Math.floor(this.getTaillePlantation(true)*30);
@@ -66,7 +66,7 @@ public class Producteur1Cooperative extends Producteur1Planteur{
         banque.payerCout(this, this.cryptogramme, "Masse salariale" , 15 * montant);
     }
 
-    
+
     public void setSalaire(boolean adulte, boolean equitable, double salaire){
         if(equitable){
             this.coopEq.put("salaire adulte", salaire);
