@@ -18,15 +18,17 @@ public class Producteur3Acteur implements IActeur {
 	protected Producteur3Stock stock; 
 	private Variable StockTotal;
 	public Plantation3 plantationeq3; 
+	private Journal journal_stock;
 	
 
 	public Producteur3Acteur() {
 		/** @author Vassili Spiridonov */
 		this.journal_periode = new Journal("Journal des périodes EQ3", this); 
+		this.journal_stock = new Journal("Journal des Stocks EQ3", this);
 
 
 		/** @author Guillaume Leroy */
-		this.stock = new Producteur3Stock();
+		this.stock = new Producteur3Stock(this.journal_stock);
 		this.StockTotal= new VariableReadOnly(this + " Stock total", this, this.stock.getStockTotal());
 		this.plantationeq3= new Plantation3();
 	}
@@ -62,6 +64,7 @@ public class Producteur3Acteur implements IActeur {
 		this.StockTotal.setValeur(this,this.stock.getStockTotal(), cryptogramme); /** @author Guillaume Leroy */
 		//coût de stockage final des feves et impôt sur le nombre d'hectare
 		this.plantationeq3.nextStep();
+		this.stock.journalRecap();
 	}
 
 	public Color getColor() {// NE PAS MODIFIER
@@ -91,6 +94,7 @@ public class Producteur3Acteur implements IActeur {
 		/** @author Vassili Spiridonov */
 		List<Journal> res=new ArrayList<Journal>(); 
 		res.add(this.journal_periode);
+		res.add(journal_stock);
 		return res;
 	}
 
