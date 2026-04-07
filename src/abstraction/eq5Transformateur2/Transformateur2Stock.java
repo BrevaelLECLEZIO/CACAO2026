@@ -52,9 +52,9 @@ public class Transformateur2Stock extends Transformateur2Acteur{
         this.stock_feve_affichage=new Variable("EQ5 Stock Fève", this, 0);
         this.stock_chocolat_affichage=new Variable("EQ5 Stock Chocloat", this, 0);
 
-        this.SacsHQ=new LinkedList<>();
-        this.SacsMQ=new LinkedList<>();
-        this.SacsBQ=new LinkedList<>();
+        this.SacsHQ=new LinkedList<>();/*Va stocker les sacs de fèves HQ et HQ_E */
+        this.SacsMQ=new LinkedList<>();/*Va stocker les sacs de fèves MQ et MQ_E */
+        this.SacsBQ=new LinkedList<>();/*Va stocker les sacs de fèves BQ et BQ_E */
     }
 
     // Méthodes
@@ -77,7 +77,7 @@ public class Transformateur2Stock extends Transformateur2Acteur{
     /** @author Pierre
     **/
     public Double getStock_chocolat_total(){
-        return this.stock_chocolat.get(Chocolat.C_BQ) + this.stock_feve.get(Chocolat.C_BQ_E) + this.stock_feve.get(Chocolat.C_MQ) + this.stock_feve.get(Chocolat.C_MQ_E) + this.stock_feve.get(Chocolat.C_HQ) + this.stock_feve.get(Chocolat.C_HQ_E);
+        return this.stock_chocolat.get(Chocolat.C_BQ) + this.stock_chocolat.get(Chocolat.C_BQ_E) + this.stock_chocolat.get(Chocolat.C_MQ) + this.stock_chocolat.get(Chocolat.C_MQ_E) + this.stock_chocolat.get(Chocolat.C_HQ) + this.stock_chocolat.get(Chocolat.C_HQ_E);
     }
     /**
      * @author Maxence
@@ -99,6 +99,13 @@ public class Transformateur2Stock extends Transformateur2Acteur{
         this.stock_feve.put(q, this.stock_feve.get(q) + n);
         this.getJournaux().get(1).ajouter("Ajout de" + (n).toString()+ "de fève de qualité" + (q).toString() + "\n");
         this.stock_feve_affichage.ajouter(this,n);
+        
+        int etape = Filiere.LA_FILIERE.getEtape();
+        if(q==Feve.F_HQ || q==Feve.F_HQ_E){
+            SacDeFeves sac=new SacDeFeves(q,n,etape+6);
+            
+        }
+
     }
 
     /** @author Pierre et maxence

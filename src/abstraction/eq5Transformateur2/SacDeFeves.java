@@ -12,6 +12,9 @@ public class SacDeFeves {
     private Double quantite;
 
     public SacDeFeves(Feve feve, Double quantite,int datePeremption){
+        /*Pour des fèves que l'on vient d'acheter, les temps avant péremption sont de 6, 12 et 24 tours selon la qualité
+        entrer Filiere.LA_FILIERE.getEtape()+ (6,12 ou 24) pour datePereption
+         */
         this.datePeremption=datePeremption;
         this.feve=feve;
         this.quantite=quantite;
