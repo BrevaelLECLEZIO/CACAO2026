@@ -37,8 +37,8 @@ public class Transformateur3AcheteurCCadre extends Transformateur3AcheteurBourse
 	public void next() {
 		super.next();
 		this.journalCC.ajouter("Etape"+Filiere.LA_FILIERE.getEtape());
-				for (Feve f : stockFeve.getFeves()) {
-					if (stockFeve.getQuantite(f)+restantDu(f)<20000) { 
+				for (Feve f : stockFeve.getFeves()) { // pas forcement equitable : on avise si on lance un contrat cadre pour tout type de feve
+					if (true) { 
 						this.journalCC.ajouter("   "+f+" suffisamment peu en stock/contrat pour passer un CC");
 						double parStep = Math.max(100, (21200-stockFeve.getQuantite(f)-restantDu(f))/12); // au moins 100
 						Echeancier e = new Echeancier(Filiere.LA_FILIERE.getEtape()+1, 12, parStep);
@@ -68,6 +68,8 @@ public class Transformateur3AcheteurCCadre extends Transformateur3AcheteurBourse
 			journalCC.ajouter("Archivage du contrat "+c);
 			this.contratsEnCours.remove(c);
 		}
+        int etape = Filiere.LA_FILIERE.getEtape();
+        journalCC.ajouter("Etape"+ etape);
 	}
 
 	public double restantDu(Feve f) {
@@ -88,11 +90,11 @@ public class Transformateur3AcheteurCCadre extends Transformateur3AcheteurBourse
 		return res;
 	}
 
-	public List<Journal> getJournaux() {
-        List<Journal> res=new ArrayList<Journal>();
-		res.add(this.journalCC);
-		return res;
-	}
+    public List<Journal> getJournaux() {
+        List<Journal> res = super.getJournaux();
+        res.add(this.journalCC);
+        return res;
+    }
 
 	public boolean achete(IProduit produit) {
 		if (!produit.getType().equals("Feve")) {
@@ -103,6 +105,7 @@ public class Transformateur3AcheteurCCadre extends Transformateur3AcheteurBourse
 	}
 
 	public Echeancier contrePropositionDeLAcheteur(ExemplaireContratCadre contrat) {
+//		return null;
 		if (!contrat.getProduit().getType().equals("Feve")) {
 			return null;
 		}
@@ -111,7 +114,7 @@ public class Transformateur3AcheteurCCadre extends Transformateur3AcheteurBourse
 			if (contrat.getEcheancier().getStepFin()-contrat.getEcheancier().getStepDebut()<11
 					|| contrat.getEcheancier().getStepDebut()-Filiere.LA_FILIERE.getEtape()>8) {
 				return new Echeancier(Filiere.LA_FILIERE.getEtape()+1, 12, contrat.getEcheancier().getQuantiteTotale()/12 );
-			} else {
+			} else { // les volumes sont corrects, la duree et le debut aussi
 				return contrat.getEcheancier();
 			}
 		} else {
