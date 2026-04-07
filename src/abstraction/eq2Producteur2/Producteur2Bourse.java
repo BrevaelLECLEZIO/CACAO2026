@@ -1,36 +1,17 @@
 package abstraction.eq2Producteur2;
 
-import java.awt.Color;
-import java.net.http.HttpResponse.BodySubscribers;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import abstraction.eqXRomu.bourseCacao.BourseCacao;
-import abstraction.eqXRomu.bourseCacao.IVendeurBourse;
 import abstraction.eqXRomu.filiere.Filiere;
-import abstraction.eqXRomu.filiere.IActeur;
-import abstraction.eqXRomu.general.Journal;
-import abstraction.eqXRomu.general.Variable;
-import abstraction.eqXRomu.general.VariableReadOnly;
 import abstraction.eqXRomu.produits.Feve;
-import abstraction.eqXRomu.produits.Gamme;
-import abstraction.eqXRomu.produits.IProduit;
 
 /**@author Simon */
 
 public class Producteur2Bourse extends Producteur2Acteur{
 
-	private Journal journalBourse;
-	
 	public Producteur2Bourse() {
-
 		super();
-		this.journalBourse = new Journal(" journal Bourse Eq2", this);
-		
-
 	}
 
+	@Override
 	public double offre(Feve f, double cours) {
 		this.stockManager.setStockMin(0.1);
 
