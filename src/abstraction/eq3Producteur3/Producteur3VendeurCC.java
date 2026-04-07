@@ -5,7 +5,9 @@ import java.util.List;
 import abstraction.eqXRomu.acteurs.ProducteurXVendeurBourse;
 import abstraction.eqXRomu.contratsCadres.Echeancier;
 import abstraction.eqXRomu.contratsCadres.ExemplaireContratCadre;
+import abstraction.eqXRomu.contratsCadres.IAcheteurContratCadre;
 import abstraction.eqXRomu.contratsCadres.IVendeurContratCadre;
+import abstraction.eqXRomu.contratsCadres.SuperviseurVentesContratCadre;
 import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.general.Journal;
 import abstraction.eqXRomu.produits.Feve;
@@ -27,9 +29,46 @@ public class Producteur3VendeurCC extends Producteur3VendeurBourse implements IV
 
     public List<Journal> getJournaux() {
 		List<Journal> jx=super.getJournaux();
-		jx.add(journalCC);
+		jx.add(this.journalCC);
 		return jx;
 	}
+
+    public void next() {
+    super.next(); 
+    SuperviseurVentesContratCadre supCC = (SuperviseurVentesContratCadre)Filiere.LA_FILIERE.getActeur("Sup.CCadre");
+    List<Feve> mesFeves = new LinkedList<Feve>();
+    mesFeves.add(Feve.F_MQ);
+    mesFeves.add(Feve.F_HQ);
+
+    for (Feve f : mesFeves) {
+        //On identifie tous les acheteurs potentiels pour ce produit 
+        List<IAcheteurContratCadre> acheteurs = supCC.getAcheteurs(f);
+        
+        // On calcule une quantité à proposer (ex: 10% de ton stock par acheteur)
+        double quantiteTotaleVoulue = this.stock.getStock(f) * 0.1;
+        double quantiteParStep = quantiteTotaleVoulue / 12; // Étallé sur 6 mois
+
+        if (quantiteParStep >= 100.0) {
+            Echeancier ech = new Echeancier(Filiere.LA_FILIERE.getEtape() + 1, 12, quantiteParStep);
+
+            // Boucle sur tous les acheteurs
+            for (IAcheteurContratCadre acheteur : acheteurs) {
+                double prixPropose = this.propositionPrix(null); 
+                int dureeEcheancier = ech.getNbEcheances();
+
+                // 2. On construit le message détaillé
+                String msg = "S" + Filiere.LA_FILIERE.getEtape();
+                msg = msg + " : Tentative de vente de " + f;
+                msg = msg + " à " + acheteur.getNom();
+                msg = msg + " | Prix: " + prixPropose + "€/t";
+                msg = msg + " | Durée: " + dureeEcheancier + " steps";
+
+                this.journalCC.ajouter(msg);
+                supCC.demandeVendeur(acheteur, this, f, ech, cryptogramme, false);
+            }
+        }
+    }
+}
 
     // On ne vend que les gammes MQ et HQ par contrat cadre
     public boolean vend(IProduit produit) {
@@ -96,11 +135,25 @@ public class Producteur3VendeurCC extends Producteur3VendeurBourse implements IV
         return aLivre;
     }
 
-    public double propositionPrix(ExemplaireContratCadre contrat) { return 2000.0; }
-    public double contrePropositionPrixVendeur(ExemplaireContratCadre contrat) { return contrat.getPrix(); }
+    public double propositionPrix(ExemplaireContratCadre contrat) { 
+        return 2000.0; 
+    }
+
+    public double contrePropositionPrixVendeur(ExemplaireContratCadre contrat) {
+        return contrat.getPrix(); 
+    }
     
     public void notificationNouveauContratCadre(ExemplaireContratCadre contrat) {
-        this.journalCC.ajouter("période "+Filiere.LA_FILIERE.getEtape()+ " : Nouveau contrat signé avec " + contrat.getAcheteur().getNom());
-        this.contratsEnCours.add(contrat);
-    }
+    String client = contrat.getAcheteur().getNom();
+    Echeancier ech = contrat.getEcheancier();
+    
+    String info = "Nouveau contrat avec " + client;
+    info = info + " | Durée: " + ech.getNbEcheances() + " steps";
+    info = info + " | Fin: " + ech.getStepFin();
+    info = info + " | Total: " + ech.getQuantiteTotale() + "t";
+    info = info + " | Prix: " + contrat.getPrix() + "€/t";
+
+    this.journalCC.ajouter(info);
+    this.contratsEnCours.add(contrat);
+}
 }

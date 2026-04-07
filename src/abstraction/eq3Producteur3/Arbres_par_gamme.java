@@ -20,7 +20,7 @@ public class Arbres_par_gamme {
         /** @author Victor Vannier-Moreau*/
         this.feve = feve;
         this.distributionAge = new ArrayList<>(961);
-        this.nbHectareTotal = 961*350; // plus facile à manipluer car multiple de 961 et proche de 3.5 millions
+        this.nbHectareTotal = 961*350; // plus facile à manipluer car multiple de 961 et proche de 330 000.
         
         int arbresParAge = nbHectareTotal / 961;
 
