@@ -1,9 +1,7 @@
 package abstraction.eq8Distributeur1;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.awt.Color;
 
 import abstraction.eqXRomu.contratsCadres.Echeancier;
@@ -18,61 +16,54 @@ import abstraction.eqXRomu.produits.IProduit;
 /** @author Ewen Landron */
 public class ContratCadre2 extends Approvisionnement2 implements IAcheteurContratCadre {
     
-    // Variables de "session" pour le contrat en cours de négociation
+    // Variables de session (redéfinies à chaque contrat)
     private double besoinCourant;
     private double prixCibleCourant;
     private double prixMaxCourant;
     
-    // Listes et Maps persistantes
+    // Flag d'initiative (géré dans le next() d'Approvisionnement2)
+    protected boolean lancement_CC;
+
     protected List<ExemplaireContratCadre> mesContrats;
-    private Map<IProduit, Double> quantiteParEtapeVoulue; // Gardé pour l'initiative acheteur
-    private Map<IProduit, Double> prixCibleVoulu;         // Gardé pour l'initiative acheteur
-    private Map<IProduit, Double> prixMaxVoulu;           // Gardé pour l'initiative acheteur
 
     public ContratCadre2() {
         super();
         this.mesContrats = new ArrayList<>();
-        this.quantiteParEtapeVoulue = new HashMap<>();
-        this.prixCibleVoulu = new HashMap<>();
-        this.prixMaxVoulu = new HashMap<>();
+        this.lancement_CC = false;
     }
 
     /**
-     * Initialise les variables de négociation pour le contrat actuel.
-     * Cette méthode est appelée au début de chaque contre-proposition.
+     * Gère l'initialisation des paramètres de négociation.
+     * Si nous sommes à l'initiative, les valeurs ont été fixées par methodeIntermediaireAchat.
+     * Sinon, on les calcule à la volée via les données d'Approvisionnement2.
      */
-    private void initialiserParametres(ExemplaireContratCadre contrat) {
-        IProduit p = contrat.getProduit();
-        
-        if (this.quantiteParEtapeVoulue.containsKey(p)) {
-            // CAS 1 : Nous sommes à l'initiative (paramètres déjà stockés via methodeIntermediaireAchat)
-            this.besoinCourant = this.quantiteParEtapeVoulue.get(p);
-            this.prixCibleCourant = this.prixCibleVoulu.get(p);
-            this.prixMaxCourant = this.prixMaxVoulu.get(p);
-        } else {
-            // CAS 2 : Le vendeur est à l'initiative (on doit calculer des valeurs types)
-            // On récupère le prix moyen/cible depuis le dictionnaire d'Approvisionnement2 s'il existe
-            this.prixCibleCourant = this.prixDAchat.getOrDefault(p, 1000.0); 
-            this.prixMaxCourant = this.prixCibleCourant * 1.5; // Marge de 50% par défaut
+    private void verifierEtInitialiserParametres(ExemplaireContratCadre contrat) {
+        if (!this.lancement_CC) {
+            // Cast explicite en IProduit pour corriger le Type Mismatch
+            IProduit p = (IProduit) contrat.getProduit();
             
-            // Pour le besoin, on peut par exemple viser une quantité standard ou 
-            // recalculer un besoin rapide (ici 5% de la capacité totale pour l'exemple)
+            // On récupère le prix de vente estimé dans la classe parente
+            this.prixCibleCourant = this.prixDAchat.getOrDefault(p, 1000.0);
+            this.prixMaxCourant = this.prixCibleCourant * 1.5;
+            
+            // On définit un besoin par défaut (10 tonnes par défaut)
             this.besoinCourant = 10.0; 
         }
     }
 
     @Override
     protected double methodeIntermediaireAchat(ChocolatDeMarque cdm, double besoinParEtape, double prixCible, double prixMax) {
-        // On stocke pour que initialiserParametres puisse les retrouver
-        this.quantiteParEtapeVoulue.put(cdm, besoinParEtape);
-        this.prixCibleVoulu.put(cdm, prixCible);
-        this.prixMaxVoulu.put(cdm, prixMax);
+        // On fixe les variables de session directement
+        this.besoinCourant = besoinParEtape;
+        this.prixCibleCourant = prixCible;
+        this.prixMaxCourant = prixMax;
 
         SuperviseurVentesContratCadre sup = (SuperviseurVentesContratCadre) (Filiere.LA_FILIERE.getActeur("Sup.CCadre"));
         List<IVendeurContratCadre> vendeurs = sup.getVendeurs(cdm);
         
         if (vendeurs.size() > 0) {
             Echeancier ech = new Echeancier(Filiere.LA_FILIERE.getEtape() + 1, 12, besoinParEtape);
+            // On lance la demande
             ExemplaireContratCadre c = sup.demandeAcheteur(this, vendeurs.get(0), cdm, ech, this.cryptogramme, false);
             
             if (c != null) {
@@ -84,13 +75,13 @@ public class ContratCadre2 extends Approvisionnement2 implements IAcheteurContra
     }
 
     public boolean achete(IProduit produit) {
-        // On accepte si c'est du chocolat de marque
+        // On accepte de discuter pour tout chocolat de marque
         return produit instanceof ChocolatDeMarque;
     }
 
     public Echeancier contrePropositionDeLAcheteur(ExemplaireContratCadre contrat) {
-        // Mise à jour de la "session" de négociation
-        this.initialiserParametres(contrat);
+        // Sécurité : on initialise si c'est une demande entrante
+        this.verifierEtInitialiserParametres(contrat);
         
         if (this.besoinCourant <= 0) return null;
 
@@ -105,15 +96,15 @@ public class ContratCadre2 extends Approvisionnement2 implements IAcheteurContra
             } else if (Math.abs(qteVendeur - this.besoinCourant) < 0.01) {
                 echReponse.set(step, qteVendeur);
             } else {
-                double milieu = (qteVendeur + this.besoinCourant) / 2.0;
-                echReponse.set(step, milieu);
+                // Stratégie du milieu
+                echReponse.set(step, (qteVendeur + this.besoinCourant) / 2.0);
             }
         }
         return echReponse;
     }
 
     public double contrePropositionPrixAcheteur(ExemplaireContratCadre contrat) {
-        // Les paramètres ont été initialisés par contrePropositionDeLAcheteur juste avant
+        // Pas besoin d'initialiser ici, contrePropositionDeLAcheteur est toujours appelée avant par le superviseur
         double pVendeur = contrat.getPrix();
 
         if (pVendeur <= this.prixCibleCourant * 0.9) {
@@ -142,8 +133,6 @@ public class ContratCadre2 extends Approvisionnement2 implements IAcheteurContra
         if (!this.mesContrats.contains(contrat)) {
             this.mesContrats.add(contrat);
         }
-        // On nettoie les maps d'initiative pour le prochain contrat
-        this.quantiteParEtapeVoulue.remove(contrat.getProduit());
     }
 
     public void receptionner(IProduit p, double quantiteEnTonnes, ExemplaireContratCadre contrat) {
