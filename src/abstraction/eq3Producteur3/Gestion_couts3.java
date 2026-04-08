@@ -7,7 +7,7 @@ public class Gestion_couts3 {
 
     public void nextCout(Producteur3Acteur acteur) {
         // Coût plantation
-        double coutPlantation = acteur.plantationeq3.getNbHectareTotal() * 250;
+        double coutPlantation = acteur.plantationeq3.getNbHectareTotal() * 7.8;
         acteur.journal_cout_periode.ajouter("Période " + Filiere.LA_FILIERE.getEtape() + " : coût plantation = " + coutPlantation);
         Filiere.LA_FILIERE.getBanque().payerCout(acteur, acteur.cryptogramme, "Coût des plantations", coutPlantation);
 
@@ -20,9 +20,14 @@ public class Gestion_couts3 {
         double coutMO = acteur.agriculteurs.getCoutMainOeuvreTotal();
         acteur.journal_cout_periode.ajouter("Période " + Filiere.LA_FILIERE.getEtape() + " : coût main d'oeuvre = " + coutMO);
         Filiere.LA_FILIERE.getBanque().payerCout(acteur, acteur.cryptogramme, "Coût de la main d'oeuvre", coutMO);
+
+        if (acteur.agriculteurs.estEthique()){
+            acteur.journal_cout_periode.ajouter("Période " + Filiere.LA_FILIERE.getEtape() + " : label Happyworker = " + 1000);
+            Filiere.LA_FILIERE.getBanque().payerCout(acteur, acteur.cryptogramme, "label Happyworker", 1000);
+        }
     }
     
     public double getCoutTot(Producteur3Acteur acteur){
-        return acteur.plantationeq3.getNbHectareTotal() * 250 + acteur.stock.getCoutStockage(7.5) + acteur.agriculteurs.getCoutMainOeuvreTotal();
+        return acteur.plantationeq3.getNbHectareTotal() * 7.8 + acteur.stock.getCoutStockage(7.5) + acteur.agriculteurs.getCoutMainOeuvreTotal();
     }
 }
