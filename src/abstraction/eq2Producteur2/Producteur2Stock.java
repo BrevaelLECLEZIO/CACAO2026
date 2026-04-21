@@ -36,9 +36,15 @@ public class Producteur2Stock {
             this.prodParStep.put(f, 0.0);
         }
 
-        this.stock_initial.put(Feve.F_BQ, 1000.0);
-        this.stock_initial.put(Feve.F_MQ, 1000.0);
+        this.stock_initial.put(Feve.F_BQ, 5000.0);
+        this.stock_initial.put(Feve.F_MQ, 4000.0);
         this.stock_initial.put(Feve.F_HQ, 1200.0);
+        this.stock_initial.put(Feve.F_HQ_E, 0.0);
+
+        this.prodParStep.put(Feve.F_BQ, 200.0);
+        this.prodParStep.put(Feve.F_MQ, 150.0);
+        this.prodParStep.put(Feve.F_HQ, 80.0);
+        this.prodParStep.put(Feve.F_HQ_E, 0.0);
 
         for (Feve f : Feve.values()) {
             this.stockvar.get(f).setValeur(null, this.stock_initial.get(f));
