@@ -57,9 +57,10 @@ public class Transformateur4Production extends Transformateur4AcheteurBourse imp
     }
 
     public List<ChocolatDeMarque> getChocolatsProduits() {
-        ChocolatDeMarque marque1 = new ChocolatDeMarque(Chocolat.C_BQ, "CACAO+", 45);
+        //ChocolatDeMarque marque1 = new ChocolatDeMarque(Chocolat.C_BQ, "CACAO+", 45);
         List<ChocolatDeMarque> liste= new ArrayList<>();
-        liste.add(marque1);
+        //liste.add(marque1);
         return liste;
     }
+
 }
