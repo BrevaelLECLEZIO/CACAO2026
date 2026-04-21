@@ -1,53 +1,61 @@
 package abstraction.eq3Producteur3;
 
+import java.util.HashMap;
+
+import abstraction.eqXRomu.produits.Gamme;
+
 /** @author Vassili Spiridonov*/
 public class Agriculteurs3 {
-    private int nbCDI;  
-    private int nbInterim;
+
+    private HashMap<Gamme, Integer> nbCDI;
+    private HashMap<Gamme, Integer> nbInterim;
+
     private int nbEnfant;    
     private double salaireCDI; 
     private double salaireInterim;     
     private double salaireEnfant;   
 
 
-    public void Agriculteur3(Plantation3 plantation) {
-        this.nbCDI = 8 * plantation.getNbHectareTotal(); // 8 employés adultes par hectare
-    }
     
     public Agriculteurs3(Plantation3 plantation) {
-        this.nbCDI = 8 * plantation.getNbHectareTotal();
-        this.nbInterim = 0;
+        this.nbCDI = new HashMap<Gamme, Integer>();
+        this.nbInterim = new HashMap<Gamme, Integer>();
         this.nbEnfant = 0; // Entrerpise éthique : aucun enfants exploités 
         this.salaireCDI = 12.0; // On les rémunères au max décidé dans les règles de fonctionnement (0.8€/jour)
-        this.salaireInterim = 18.0; // On paye plus chère les intérimaires
+        this.salaireInterim = 24.0; // On paye deux fois plus chère les intérimaires
         this.salaireEnfant = 3.0;  // D'après les règles de fonctionnemments : 0.2€/jour 
+        this.repartirTravailleurs(plantation);
+    }
+
+    public void repartirTravailleurs(Plantation3 plantation) {
+        for (Gamme g : Gamme.values()) {
+            double surfaceGamme = plantation.getSurface(g); 
+            
+            int besoinTotalGamme = (int) (surfaceGamme * 8);
+
+            this.nbCDI.put(g, besoinTotalGamme);
+            this.nbInterim.put(g, 0);
+        }
     }
 
     public double getForceDeTravailTotale() {
-        return this.nbCDI + (this.nbEnfant * 0.5) + this.nbInterim; /* Les enfants comptent pour 0.5 d'un adulte.
-     */
+        double totalAdulte = 0;
+        for (Gamme g : Gamme.values()) {
+            totalAdulte += nbCDI.getOrDefault(g, 0) + nbInterim.getOrDefault(g, 0);
+        }
+        return totalAdulte + (this.nbEnfant * 0.5); // Enfant compte pour 0.5
     }
 
     public double getCoutMainOeuvreTotal() {
-        return (this.nbCDI * this.salaireCDI) + (this.nbInterim * this.salaireInterim) + (this.nbInterim ) +
-               (this.nbEnfant * this.salaireEnfant);
+        double cout = 0;
+        for (Gamme g : Gamme.values()) {
+            cout += (nbCDI.getOrDefault(g, 0) * salaireCDI);
+            cout += (nbInterim.getOrDefault(g, 0) * salaireInterim);
+        }
+        cout += (nbEnfant * salaireEnfant);
+        return cout;
     }
-
-    //On Embauche des CDI 
-    public void EmbaucheCDI(int nb) { 
-        this.nbCDI += Math.max(0, nb);
-    }
-
-    //On licencie des CDI
-    public void licencieCDI(int nb) {
-        this.nbCDI = Math.max(0, this.nbCDI - nb);
-    }
-
-    //Recrutement ponctuel des intérimaires 
-    public void setNbInterim(int nb) {
-        this.nbInterim = Math.max(0, nb);
-    }
-
+    
 
     
 
