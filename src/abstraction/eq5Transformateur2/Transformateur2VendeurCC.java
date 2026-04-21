@@ -22,8 +22,11 @@ public class Transformateur2VendeurCC extends Transformateur2AchatCC implements 
     }
 
 	public boolean vend(IProduit produit){
-		if (produit instanceof ChocolatDeMarque){ // Modifié ici
+		if (produit instanceof ChocolatDeMarque){ 
 			ChocolatDeMarque cdm = (ChocolatDeMarque) produit;
+			if (!cdm.getNom().equals("Ferrara Rocher")) {
+        	return false; // On ne vend pas les marques des concurrents !
+			}
 			if (cdm.getChocolat().isEquitable()){ // On extrait le chocolat générique pour tester
 				return false;
 			} else {
@@ -51,7 +54,7 @@ public class Transformateur2VendeurCC extends Transformateur2AchatCC implements 
 	}
 
 	public double livrer(IProduit produit, double quantite, ExemplaireContratCadre contrat){
-		if (produit instanceof ChocolatDeMarque){ // Modifié ici
+		if (produit instanceof ChocolatDeMarque){ 
 			ChocolatDeMarque cdm = (ChocolatDeMarque) produit;
 			Chocolat c = cdm.getChocolat();
 			Feve F;

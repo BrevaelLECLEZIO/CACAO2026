@@ -42,12 +42,17 @@ public class Transformateur2ProductionChocolat extends Transformateur2Production
                     } else if (q == Feve.F_HQ){
                         Q = p + 3;
                     } 
-                    if ( 3.575 <= Q & p >= 0.80 ){
-                        this.add_chocolat(n,Chocolat.C_HQ);
-                    } else if ( 2.58 <= Q & p >= 0.60 ){
-                        this.add_chocolat(n,Chocolat.C_MQ);
+                    if ( 3.575 <= Q && p >= 0.80 ){
+                        ChocolatDeMarque chocoHQ = new ChocolatDeMarque(Chocolat.C_HQ, "Ferrara Rocher", 100);
+                        this.add_chocolatDeMarque(chocoHQ, n);
+                        
+                    } else if ( 2.58 <= Q && p >= 0.60 ){
+                        ChocolatDeMarque chocoMQ = new ChocolatDeMarque(Chocolat.C_MQ, "Ferrara Rocher", 100);
+                        this.add_chocolatDeMarque(chocoMQ, n);
+                        
                     } else {
-                        this.add_chocolat(n,Chocolat.C_BQ);
+                        ChocolatDeMarque chocoBQ = new ChocolatDeMarque(Chocolat.C_BQ, "Ferrara Rocher", 45); 
+                        this.add_chocolatDeMarque(chocoBQ, n);
                     }
                 }
             }
