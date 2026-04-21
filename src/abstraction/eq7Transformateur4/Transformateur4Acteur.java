@@ -15,7 +15,7 @@ import abstraction.eqXRomu.produits.IProduit;
 public class Transformateur4Acteur implements IActeur {
 	
 	protected int cryptogramme;
-	private Journal journal; //Aymeric
+	protected Journal journal; //Aymeric
 	private StockEq7 stock_Equitable;
 	private StockEq7 stock_PasEquitable;
 	private Variable LQ; //Indicateur LQ Equitable + pas equitable
