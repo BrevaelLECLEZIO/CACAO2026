@@ -19,6 +19,9 @@ public class Transformateur4Acteur implements IActeur {
 	private Variable LQ; //Indicateur LQ Equitable + pas equitable
 	private Variable MQ; //Idem pour MQ
 	private Variable HQ; //Idem pour HQ
+	private Variable StockChoco_BQ;
+	private Variable StockChoco_MQ;
+	private Variable StockChoco_HQ;
 	public Transformateur4Acteur() {
 		//Aymeric
 		this.journal = new Journal("Journal equipe 7 (transformateur)", this);
@@ -29,6 +32,12 @@ public class Transformateur4Acteur implements IActeur {
 		this.LQ=new Variable("LQ", this,0);
 		this.MQ=new Variable("MQ",this,0);
 		this.HQ=new Variable("HQ", this, 0);
+		
+		//Paul
+		this.StockChoco_BQ=new Variable("StockChoco_BQ", this, 0);
+		this.StockChoco_MQ=new Variable("StockChoco_MQ", this, 0);
+		this.StockChoco_HQ=new Variable("StockChoco_HQ", this, 0);	
+
 
 	}
 	
