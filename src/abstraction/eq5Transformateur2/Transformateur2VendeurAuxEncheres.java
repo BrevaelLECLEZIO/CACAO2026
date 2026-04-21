@@ -9,7 +9,7 @@ import abstraction.eqXRomu.produits.ChocolatDeMarque;
 /**
  * @author Maxence
  */
-public class Transformateur2VendeurAuxEncheres extends Transformateur2AcheteurBourse implements IVendeurAuxEncheres{
+public class Transformateur2VendeurAuxEncheres extends Transformateur2AchatEncheres implements IVendeurAuxEncheres{
 
     public Transformateur2VendeurAuxEncheres() {
         super();

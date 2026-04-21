@@ -21,7 +21,7 @@ import abstraction.eqXRomu.produits.Feve;
 
 
 
-public class Transformateur2AchatEncheres extends Transformateur2AchatCC implements IAcheteurAuxEncheres {
+public class Transformateur2AchatEncheres extends Transformateur2VendeurAppelOffre implements IAcheteurAuxEncheres {
 
 
     public Transformateur2AchatEncheres() {

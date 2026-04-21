@@ -20,7 +20,7 @@ import abstraction.eqXRomu.bourseCacao.BourseCacao;
 /**
  * @author Pierre GUTTIEREZ
  */
-public class Transformateur2AchatAppelOffre extends Transformateur2VendeurAuxEncheres implements IAcheteurAO{
+public class Transformateur2AchatAppelOffre extends Transformateur2AcheteurBourse implements IAcheteurAO{
 
     public Transformateur2AchatAppelOffre() {
         super();
