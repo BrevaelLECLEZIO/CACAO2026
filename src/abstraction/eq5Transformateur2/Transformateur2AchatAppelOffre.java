@@ -1,5 +1,4 @@
 package abstraction.eq5Transformateur2;
-
 import java.util.List;
 
 import abstraction.eqXRomu.appelDOffre.IAcheteurAO;
