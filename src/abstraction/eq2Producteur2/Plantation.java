@@ -13,6 +13,7 @@ public class Plantation {
     private double prix_vente; // Prix de vente de la plantation
     private double prix_replantation; // Prix de replantation de la plantation
     private double salaire_employe; // Prix que coûtent les employés par step par parcelle
+    private double cout_cooperative = 0 ; // Prix que coûtent les infrastructures communes à la coopérative par step
     private boolean replante = false;
 
     public Plantation(Feve typeFeve, int parcelles, int age) {
@@ -31,6 +32,7 @@ public class Plantation {
                 this.prix_vente = 1200 ;
                 this.prix_replantation = 1000 ; // 1 euro par plant
                 this.salaire_employe = 150 ;
+
                 break;
  
             case F_MQ:
@@ -144,13 +146,13 @@ public class Plantation {
 
     public double getcout() {
         if ((age == 0) && (replante == false)) {
-            return parcelles*prix_achat;
+            return parcelles*prix_achat + cout_cooperative;
         }
         else if ((age == 0) && (replante == true)) {
-            return parcelles*prix_replantation;
+            return parcelles*prix_replantation + cout_cooperative;
         }
         else if (age <= dureeDeVie){
-            return parcelles*salaire_employe;
+            return parcelles*salaire_employe + cout_cooperative;
         }
         else {
             return 0;
@@ -159,16 +161,16 @@ public class Plantation {
 
     public double getcout_amorti() {
         if ((age == 0) && (replante == false)) {
-            return parcelles*prix_achat / 960;
+            return cout_cooperative + parcelles*prix_achat / 960;
         }
         else if ((age == 0) && (replante == true)) {
-            return parcelles*prix_replantation / 960;
+            return cout_cooperative + parcelles*prix_replantation / 960;
         }
         else if ((age <= dureeDeVie) && (replante == false)){
-            return parcelles*salaire_employe + (parcelles*prix_achat / 960);
+            return parcelles*salaire_employe + cout_cooperative + (parcelles*prix_achat / 960);
         }
         else if ((age <= dureeDeVie) && (replante == true)){
-            return parcelles*salaire_employe + (parcelles*prix_replantation / 960);
+            return parcelles*salaire_employe + cout_cooperative + (parcelles*prix_replantation / 960);
         }
         else {
             return 0;
