@@ -53,7 +53,7 @@ public class Distributeur1Acteur implements IDistributeurChocolatDeMarque {
 		this.Stock = new HashMap<IProduit, Double>();
 		this.Prix = new HashMap<IProduit, Double>();
 		this.ChocolatsAchetes = new HashMap<ChocolatDeMarque, Double>();
-		this.TailleRayon = 1000.0;
+		this.TailleRayon = 1000000.0;
 		this.volumerayon = 0.0;
 		this.CoutParArticle = 0.0;
 		this.prixDAchat = new HashMap<ChocolatDeMarque, Double>();
@@ -62,7 +62,7 @@ public class Distributeur1Acteur implements IDistributeurChocolatDeMarque {
 	public void initialiser() {
 		List<ChocolatDeMarque> p=Filiere.LA_FILIERE.getChocolatsProduits();
 		for (int i=0; i<p.size(); i++){
-			this.Stock.put((IProduit)(p.get(i)),500.0);
+			this.Stock.put((IProduit)(p.get(i)),1000000.0);
 			this.Rayon.put((IProduit)(p.get(i)),0.0);
 			this.Prix.put((IProduit)(p.get(i)),8000.0);
 			this.volumeStock.ajouter(this,getQuantiteEnStock((IProduit)(p.get(i)),this.cryptogramme));
@@ -270,8 +270,8 @@ public class Distributeur1Acteur implements IDistributeurChocolatDeMarque {
 		if (this.cryptogramme==cryptogramme) { // c'est donc bien un acteur assermente qui demande a consulter la quantite en stock
 			/** @author Lucas Levillain */
 			
-			this.Prix.put(p, (CoutParArticle + prixDAchat.getOrDefault(p, 1000.0)) * 1.1);
-			
+			//this.Prix.put(p, (CoutParArticle + prixDAchat.getOrDefault(p, 1000.0)) * 1.1);
+			this.Prix.put(p, 8000.0);
 			return this.Prix.get(p);
 		} else {
 			return 0; // Les acteurs non assermentes n'ont pas a connaitre notre stock
