@@ -1,8 +1,33 @@
+
 package abstraction.eq6Transformateur3;
 
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import abstraction.eqXRomu.acteurs.TransformateurXAcheteurBourse;
+import abstraction.eqXRomu.bourseCacao.BourseCacao;
+import abstraction.eqXRomu.contratsCadres.Echeancier;
+import abstraction.eqXRomu.contratsCadres.ExemplaireContratCadre;
+import abstraction.eqXRomu.contratsCadres.IAcheteurContratCadre;
+import abstraction.eqXRomu.contratsCadres.IVendeurContratCadre;
+import abstraction.eqXRomu.contratsCadres.SuperviseurVentesContratCadre;
+import abstraction.eqXRomu.filiere.Filiere;
+import abstraction.eqXRomu.general.Journal;
 import abstraction.eqXRomu.produits.Chocolat;
+import abstraction.eqXRomu.produits.ChocolatDeMarque;
 import abstraction.eqXRomu.produits.Feve;
 import abstraction.eqXRomu.produits.Gamme;
+import abstraction.eqXRomu.produits.IProduit;
+
+import abstraction.eqXRomu.appelDOffre.IAcheteurAO;
+import abstraction.eqXRomu.appelDOffre.OffreVente;
+import abstraction.eqXRomu.appelDOffre.SuperviseurVentesAO;
+
+
+import abstraction.eq6Transformateur3.StockFeve;
+import abstraction.eq6Transformateur3.StockChocolat;
 
 /**
  * Classe simple de transformation des fèves en chocolat pour EQ6.
