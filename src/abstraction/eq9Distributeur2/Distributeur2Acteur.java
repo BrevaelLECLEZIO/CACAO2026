@@ -38,6 +38,9 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 		this.journal = new Journal("Journal EQ9", this);
 		this.stock = new HashMap<>();
 		this.indicateurStockTotal = new Variable("EQ9_stock_total", this, 0.0);
+        this.indicateurMargeMoyenne = new Variable("EQ9_marge_moyenne", this, 18.0);
+        this.indicateurMixMarquePrivee = new Variable("EQ9_pct_marque_privee", this, 40.0);
+        this.indicateurProfitBrutEtape = new Variable("EQ9_profit_brut", this, 0.0);
 	}
 
 
@@ -64,11 +67,6 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
         
         this.strategieFixationPrix = new EQ9_StrategieFixationPrix(journal);
         
-        
-        this.indicateurMargeMoyenne = new Variable("EQ9_marge_moyenne", this, 18.0);
-        this.indicateurMixMarquePrivee = new Variable("EQ9_pct_marque_privee", this, 40.0);
-        this.indicateurProfitBrutEtape = new Variable("EQ9_profit_brut", this, 0.0);
-
         journal.ajouter("Initialisation terminée : " + produits.size() + " produits en stock");
     }
 
