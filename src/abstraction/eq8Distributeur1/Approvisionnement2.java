@@ -32,6 +32,7 @@ public class Approvisionnement2 extends Distributeur1Acteur {
         this.classements.put("HQ", new ArrayList<>());
         this.classements.put("HQ_EQUITABLE", new ArrayList<>());
         this.mesContrats = new ArrayList<>();
+        this.stockPredit = new HashMap<>();
     }
 
     /**
@@ -166,41 +167,58 @@ public class Approvisionnement2 extends Distributeur1Acteur {
      */
     private Map<ChocolatDeMarque, Double> initialiserStockPredit() {
         Map<ChocolatDeMarque, Double> predit = new HashMap<>();
+        // On réinitialise aussi notre suivi des achats pour ce tour
+        this.ChocolatsAchetes = new HashMap<>(); 
+    
         int etapeActuelle = Filiere.LA_FILIERE.getEtape();
 
-        // 1. On ajoute le stock physique actuel
+        // 1. Stock physique actuel (uniquement pour le stock prédit)
         for (IProduit p : this.Stock.keySet()) {
             if (p instanceof ChocolatDeMarque) {
                 predit.put((ChocolatDeMarque)p, this.Stock.get(p));
+                // On initialise les achats à 0.0 pour chaque produit connu en stock
+                this.ChocolatsAchetes.put((ChocolatDeMarque)p, 0.0);
             }
         }
+    
 
-        // 2 . On ajoute les livraisons prévues pour CE tour par les anciens contrats
+        // 2. Livraisons prévues pour CE tour par les contrats CADRES EXISTANTS
         for (ExemplaireContratCadre contrat : this.mesContrats) {
             IProduit p = (IProduit) contrat.getProduit();
             if (p instanceof ChocolatDeMarque) {
                 ChocolatDeMarque cdm = (ChocolatDeMarque) p;
                 double quantiteAttendue = contrat.getEcheancier().getQuantite(etapeActuelle);
+                
+                // Mise à jour Stock Predit
                 double stockActuel = predit.getOrDefault(cdm, 0.0);
                 predit.put(cdm, stockActuel + quantiteAttendue);
+                
+                // ACTION : On remplit ChocolatsAchetes avec ce qui est livré ce tour
+                double achatsActuels = this.ChocolatsAchetes.getOrDefault(cdm, 0.0);
+                this.ChocolatsAchetes.put(cdm, achatsActuels + quantiteAttendue);
             }
         }
+        
         return predit;
     }
 
-    protected void actualiserStockPredit(ExemplaireContratCadre nouveauContrat) {
-        if (nouveauContrat != null) {
-            IProduit p = (IProduit) nouveauContrat.getProduit();
-            if (p instanceof ChocolatDeMarque) {
-                ChocolatDeMarque cdm = (ChocolatDeMarque) p;
-                int etapeActuelle = Filiere.LA_FILIERE.getEtape();
+protected void actualiserStockPredit(ExemplaireContratCadre nouveauContrat) {
+    if (nouveauContrat != null) {
+        IProduit p = (IProduit) nouveauContrat.getProduit();
+        if (p instanceof ChocolatDeMarque) {
+            ChocolatDeMarque cdm = (ChocolatDeMarque) p;
+            int etapeActuelle = Filiere.LA_FILIERE.getEtape();
+        
+            double livraisonImmediate = nouveauContrat.getEcheancier().getQuantite(etapeActuelle);
+        
+            // 1. Mise à jour du Stock Predit (pour la logique de mise en rayon)
+            double ancienStockPredit = this.stockPredit.getOrDefault(cdm, 0.0);
+            this.stockPredit.put(cdm, ancienStockPredit + livraisonImmediate);
             
-                // On récupère la livraison prévue pour l'étape en cours par ce nouveau contrat
-                double livraisonImmediate = nouveauContrat.getEcheancier().getQuantite(etapeActuelle);
-            
-                double ancienStockPredit = this.stockPredit.getOrDefault(cdm, 0.0);
-                this.stockPredit.put(cdm, ancienStockPredit + livraisonImmediate);
-            }
+            // 2. ACTION : Mise à jour de ChocolatsAchetes (suivi des flux du tour)
+            double anciensAchats = this.ChocolatsAchetes.getOrDefault(cdm, 0.0);
+            this.ChocolatsAchetes.put(cdm, anciensAchats + livraisonImmediate);
         }
     }
+}
 }
