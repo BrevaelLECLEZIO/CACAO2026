@@ -101,7 +101,23 @@ public class Plantation3 {
             }
         }
         return repartition;
-}
+    }
+    
+    public double getRepartitionTerrainFeve(Feve f) {
+        Map<Gamme, Double> repartitionGamme = this.getRepartitionTerrain();
+        Gamme g = f.getGamme();
+
+        double pourcentageGamme = repartitionGamme.getOrDefault(g, 0.0);
+
+        double quotaEquitable = this.pourcentagesEquitables.getOrDefault(g, 0.0);
+        
+        if (f == Feve.F_HQ_E || f == Feve.F_MQ_E || f == Feve.F_BQ_E) {
+            return pourcentageGamme * quotaEquitable / 100.0; 
+        } else {
+            return pourcentageGamme * (1 - quotaEquitable) / 100.0;
+        }
+    }
+  
 
 
     /**
