@@ -63,5 +63,5 @@ public class Transformateur3AcheteurBourse extends Transformateur3Acteur impleme
         List<Journal> res = new ArrayList<Journal>(super.getJournaux());
         res.add(this.journalBourse);
         return res;
-    }
+}
 }
