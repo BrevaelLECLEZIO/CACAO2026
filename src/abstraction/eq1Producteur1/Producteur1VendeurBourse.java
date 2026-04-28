@@ -3,6 +3,7 @@ package abstraction.eq1Producteur1;
 import java.util.HashMap;
 
 import abstraction.eqXRomu.bourseCacao.IVendeurBourse;
+import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.produits.Feve;
 import abstraction.eqXRomu.general.Journal;
 import java.awt.Color;
@@ -40,30 +41,36 @@ public class Producteur1VendeurBourse extends Producteur1VendeurContractCadre im
 			return 0;
 		}
 
-		double stock = getStock(f);
+		int etape = Filiere.LA_FILIERE.getEtape();
+		if (this.periode < etape % 24){
 
-		if (stock <= 0){
-			journalBourse.ajouter("Stock nul pour "+f+" → aucune vente");
-			return 0;
+			double stock = getStock(f);
+
+			if (stock <= 0){
+				journalBourse.ajouter("Stock nul pour "+f+" → aucune vente");
+				return 0;
+			}
+
+			if (cours < 2800 && f == Feve.F_BQ){
+				journalBourse.ajouter(Color.ORANGE, Color.white, "Prix trop bas ("+cours+" €/t) pour "+f+" → vente refusée");
+				return 0;
+			}
+
+			if (cours < 3300 && f == Feve.F_MQ){
+				journalBourse.ajouter(Color.ORANGE, Color.white, "Prix trop bas ("+cours+" €/t) pour "+f+" → vente refusée");
+				return 0;
+			}
+
+			double quantite = 0.05*stock;
+
+			quantite = Math.min(quantite, 20000);
+
+			journalBourse.ajouter(Color.BLUE, Color.white, "Offre : "+quantite+" tonnes de "+f+" au cours de "+cours+" €/t (stock="+stock+")");
+
+			return quantite;
 		}
 
-		if (cours < 2800 && f == Feve.F_BQ){
-			journalBourse.ajouter(Color.ORANGE, Color.white, "Prix trop bas ("+cours+" €/t) pour "+f+" → vente refusée");
-   			return 0;
-		}
-
-		if (cours < 3300 && f == Feve.F_MQ){
-			journalBourse.ajouter(Color.ORANGE, Color.white, "Prix trop bas ("+cours+" €/t) pour "+f+" → vente refusée");
-			return 0;
-		}
-
-		double quantite = 0.05*stock;
-
-		quantite = Math.min(quantite, 20000);
-
-		journalBourse.ajouter(Color.BLUE, Color.white, "Offre : "+quantite+" tonnes de "+f+" au cours de "+cours+" €/t (stock="+stock+")");
-
-		return quantite;
+		return 0.;
 
     }
 
@@ -102,6 +109,8 @@ public class Producteur1VendeurBourse extends Producteur1VendeurContractCadre im
         this.blacklist = dureeEnStep;
 		journalBourse.ajouter(Color.RED, Color.white, "BLACKLIST : exclusion de la bourse pendant "+dureeEnStep+" steps");
     }
+
+	
 
 }
 
