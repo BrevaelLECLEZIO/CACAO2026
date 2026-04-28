@@ -21,6 +21,7 @@ public class Producteur1VendeurContractCadre extends Producteur1Cooperative impl
 	protected List<ExemplaireContratCadre> contratsEnCours;
 	private List<ExemplaireContratCadre> contratsTermines;
 	protected Journal journalCC;
+	protected int periode = 8 ;
 
     public Producteur1VendeurContractCadre(){
         super();

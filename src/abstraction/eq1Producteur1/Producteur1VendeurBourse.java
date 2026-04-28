@@ -12,7 +12,7 @@ public class Producteur1VendeurBourse extends Producteur1VendeurContractCadre im
 ///*
     private int blacklist=0;
 	protected HashMap<Feve , Double > pourcentageAVendre = new HashMap<Feve , Double>();
-	protected int periode = 8 ;
+
 
     public Producteur1VendeurBourse(){
         super();
