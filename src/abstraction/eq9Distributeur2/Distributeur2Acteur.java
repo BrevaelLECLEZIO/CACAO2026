@@ -36,6 +36,8 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 	public Distributeur2Acteur() {
 		this.journal = new Journal("Journal EQ9", this);
 		this.stock = new HashMap<>();
+        this.prix = new HashMap<>();
+        this.strategieFixationPrix = new EQ9_StrategieFixationPrix(this.journal);
 		this.indicateurStockTotal = new Variable("EQ9_stock_total", this, 0.0);
         this.indicateurMargeMoyenne = new Variable("EQ9_marge_moyenne", this, 18.0);
         this.indicateurMixMarquePrivee = new Variable("EQ9_pct_marque_privee", this, 40.0);
@@ -61,10 +63,8 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 
         this.indicateurStockTotal.setValeur(this, getStockTotal());
 
-        // Initialisation des prix selon la qualité du chocolat
-        this.prix = new HashMap<>();
         
-        this.strategieFixationPrix = new EQ9_StrategieFixationPrix(journal);
+        
         
         journal.ajouter("Initialisation terminée : " + produits.size() + " produits en stock");
     }
