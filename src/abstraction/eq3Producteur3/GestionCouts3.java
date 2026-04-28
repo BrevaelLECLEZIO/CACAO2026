@@ -50,6 +50,10 @@ public class GestionCouts3 {
 
     public double getCoutFeve(Feve f ,  Producteur3Acteur acteur){
         double c= acteur.agriculteurs.getCoutMainOeuvreFeve(f) + acteur.plantationeq3.getRepartitionTerrainFeve(f)*this.coutHectare;
+        Gamme g = f.getGamme();
+            if (acteur.agriculteurs.getStatutHappyWorker(g)){
+                c+= this.coutLabelHappyWorker;
+            }
         return c ;
     }
 }

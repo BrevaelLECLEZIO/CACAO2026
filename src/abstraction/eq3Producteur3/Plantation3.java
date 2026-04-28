@@ -136,8 +136,8 @@ public class Plantation3 {
 
         // Stratégie 20/50/30
         int repartitionBQ = (int) (totalAReplanter * 0.20);
-        int repartitionHQ = (int) (totalAReplanter * 0.30);
-        int repartitionMQ = totalAReplanter - repartitionBQ - repartitionHQ; // Le reste en MQ (50%)
+        int repartitionHQ = (int) (totalAReplanter * 0.45);
+        int repartitionMQ = totalAReplanter - repartitionBQ - repartitionHQ; // Le reste en MQ (35%)
 
   
         plantation.get(Gamme.BQ).replanter(repartitionBQ);
