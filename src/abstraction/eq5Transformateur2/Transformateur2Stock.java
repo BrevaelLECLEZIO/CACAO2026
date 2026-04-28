@@ -91,7 +91,7 @@ public class Transformateur2Stock extends Transformateur2Acteur{
     public void add_feve(Double n, Feve q){
         assert n >= 0;
         this.stock_feve.put(q, this.stock_feve.get(q) + n);
-        this.getJournaux().get(1).ajouter("Ajout de" + (n).toString()+ "de fève de qualité" + (q).toString() + "\n");
+        this.getJournaux().get(1).ajouter("Ajout de " + (n).toString()+ " de fève de qualité " + (q).toString() + "\n");
         this.stock_feve_affichage.ajouter(this,n);
         
         int etape = Filiere.LA_FILIERE.getEtape();
@@ -128,7 +128,7 @@ public class Transformateur2Stock extends Transformateur2Acteur{
         assert n >= 0;
         if (n <= this.stock_feve.get(q)){
             this.stock_feve.put(q, this.stock_feve.get(q) - n);
-            this.getJournaux().get(1).ajouter("Déstockage de" + (n).toString()+ "de fève de qualité" + (q).toString() + "\n");
+            this.getJournaux().get(1).ajouter("Déstockage de " + (n).toString()+ " de fève de qualité " + (q).toString() + "\n");
             this.stock_feve_affichage.retirer(this,n);
 
             if(q==Feve.F_HQ){

@@ -17,18 +17,32 @@ public class Transformateur2AcheteurBourse extends Transformateur2AnalyseurMarch
     public double demande(Feve f, double cours) {
         HashMap<Chocolat, Double> demandeChoco =this.DemandeChocolat();
         if (f == Feve.F_BQ){
-            return demandeChoco.get(Chocolat.C_BQ) * 0.25;
+            if(this.getStock_feve(f)<15000.0){
+                return demandeChoco.get(Chocolat.C_BQ) * 0.25;
+            }
+            else{
+                return 0.0;
+            }
         }
         if (f == Feve.F_MQ){
-            return demandeChoco.get(Chocolat.C_MQ) * 0.20;
+            if(this.getStock_feve(f)<15000.0){
+                return demandeChoco.get(Chocolat.C_MQ) * 0.25;
+            }
+            else{
+                return 0.0;
+            }
         }
         else{
-            return demandeChoco.get(Chocolat.C_HQ) * 0.15;
+            if(this.getStock_feve(f)<15000.0){
+                return demandeChoco.get(Chocolat.C_HQ) * 0.25;
+            }
+            else{
+                return 0.0;
+            }
         }
     }
     
     public void notificationAchat(Feve f, double quantiteEnT, double coursEnEuroParT) {
-        this.getJournaux().get(1).ajouter("Achat effectué de: "+quantiteEnT+" fèves "+f+" au prix/tonne de "+coursEnEuroParT);
         this.getJournaux().get(7).ajouter("Achat effectué de: "+quantiteEnT+" fèves "+f+" au prix/tonne de "+coursEnEuroParT);
 
         this.add_feve(quantiteEnT,f);
