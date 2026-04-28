@@ -18,6 +18,7 @@ public class Producteur2VendeurCC extends Producteur2Bourse implements IVendeurC
     private SuperviseurVentesContratCadre supCC;
     private List<ExemplaireContratCadre> contratsEnCours;
     private static final double MARGE_MIN = 1.2;
+    private static final double MARGE_EQUITABLE = 2.0;  // Marge plus importante pour les fèves équitables
 
     public Producteur2VendeurCC() {
         super();
@@ -126,11 +127,20 @@ public class Producteur2VendeurCC extends Producteur2Bourse implements IVendeurC
         Feve feve = (Feve) contrat.getProduit();
         double prixActuel = contrat.getPrix();
         double prixMinimum = this.prixMinimumAcceptable(feve);
+        
         // Regle stricte : on coupe la nego si le prix est sous le seuil.
         if (prixActuel < prixMinimum) {
             this.journalContratCadre.ajouter("Refus prix CC " + prixActuel + " < seuil " + prixMinimum + " pour " + feve);
             return 0.0;
         }
+        
+        // Pour les fèves équitables, proposer un prix premium
+        if (feve == Feve.F_HQ_E) {
+            double prixPropose = Math.max(prixActuel, prixMinimum);
+            this.journalContratCadre.ajouter("Prix équitable proposé: " + prixPropose + " € pour " + feve);
+            return prixPropose;
+        }
+        
         return prixActuel;
     }
 
@@ -146,6 +156,16 @@ public class Producteur2VendeurCC extends Producteur2Bourse implements IVendeurC
                 : ((abstraction.eqXRomu.bourseCacao.BourseCacao) Filiere.LA_FILIERE.getActeur("BourseCacao"))
                         .getCours(feve).getValeur();
         double coutProd = this.cout_unit_t.getOrDefault(feve, 0.0);
+        
+        // Pour les fèves équitables (F_HQ_E), appliquer une meilleure marge
+        if (feve == Feve.F_HQ_E) {
+            // Marge premium sur les coûts de production
+            double prixEquitable = coutProd * MARGE_EQUITABLE;
+            // Assurer un minimum respectueux du coût
+            return Math.max(prixEquitable, coutProd * 1.5);
+        }
+        
+        // Pour les autres fèves, utiliser la marge standard
         return Math.max(cours * MARGE_MIN, coutProd * MARGE_MIN);
     }
 

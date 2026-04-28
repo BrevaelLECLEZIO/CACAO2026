@@ -35,6 +35,16 @@ public class Producteur2couts extends Producteur2Stock {
             double prod = stock.get(f).getOrDefault(etape, 0.0);
             if (prod > 0) {
                 double cout = cout_stockage * prod;
+                
+                // Ajouter les coûts équitables pour F_HQ_E
+                if (f == Feve.F_HQ_E) {
+                    // Accumuler le coût du label par tonne produite
+                    // (le coût du label s'accumule dans getCoutEquitableAccumule)
+                    double coutEquitable = (this instanceof Récolte) ? 
+                        ((Récolte)this).getCoutEquitableAccumule(f) : 0.0;
+                    cout += coutEquitable;
+                }
+                
                 cout_unit_t.put(f, cout / prod);
                 JournalCout.ajouter("Step " + etape + " : Coût unitaire de production pour " + f + " = " + cout_unit_t.get(f) + " €/t");
             } else {
@@ -43,6 +53,9 @@ public class Producteur2couts extends Producteur2Stock {
             }
         }
     }
-
+    
+    public double getCoutUnitaire(Feve f) {
+        return this.cout_unit_t.getOrDefault(f, 0.0);
+    }
 
 }

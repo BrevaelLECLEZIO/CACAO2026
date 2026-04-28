@@ -14,6 +14,14 @@ public class Plantation {
     private double prix_replantation; // Prix de replantation de la plantation
     private double salaire_employe; // Prix que coûtent les employés par step par parcelle
     private boolean replante = false;
+    
+    // Champs pour la certification équitable
+    private boolean estEquitable = false;           // Est certifiée équitable
+    private int nombreOuvriers = 0;                 // Nombre d'ouvriers sur cette parcelle
+    private boolean travailEnfant = false;          // Y a-t-il du travail enfant ?
+    private double salaireMiniJournalier = 0.0;    // Salaire minimum journalier (euros)
+    private double coutLabelMensuel = 0.0;         // Coût du label équitable par mois (tous les 2 next)
+    private int etapeLastCoutLabel = -1;           // Dernier paiement du label
 
     public Plantation(Feve typeFeve, int parcelles, int age) {
         super();
@@ -66,6 +74,9 @@ public class Plantation {
             default:
                 throw new IllegalArgumentException("Type de fève non reconnu !");
         }
+        
+        // Initialisation par défaut : pas de certification
+        this.etapeLastCoutLabel = -1;
     }
 
 
@@ -177,5 +188,134 @@ public class Plantation {
 
     public double get_prix_vente() {
         return prix_vente;
+    }
+
+    // ========== Méthodes pour la certification équitable ==========
+    
+    /**
+     * Active le mode équitable avec les paramètres nécessaires
+     * @param pourcentageCertifie : pourcentage de cette plantation à certifier (0-100)
+     */
+    public void activerCertificationEquitable(int nombreOuvriers, double salaireMiniJournalier, double coutLabelMensuel, double pourcentageCertifie) {
+        if (this.typeFeve != Feve.F_HQ && this.typeFeve != Feve.F_HQ_E) {
+            return; // Seules les plantations F_HQ/F_HQ_E peuvent devenir équitables
+        }
+        
+        if (pourcentageCertifie < 0 || pourcentageCertifie > 100) {
+            return;
+        }
+        
+        // Réduire le nombre de parcelles à la portion certifiée
+        this.parcelles = (int) Math.ceil(this.parcelles * (pourcentageCertifie / 100.0));
+        
+        this.nombreOuvriers = nombreOuvriers;
+        this.salaireMiniJournalier = salaireMiniJournalier;
+        this.coutLabelMensuel = coutLabelMensuel;
+        this.travailEnfant = false; // Certification équitable = pas de travail enfant
+        this.estEquitable = true;
+        this.typeFeve = Feve.F_HQ_E; // Conversion en F_HQ_E
+    }
+    
+    /**
+     * Crée une copie de cette plantation avec un pourcentage non-certifié
+     * Utile pour diviser une plantation en partie certifiée + non-certifiée
+     * @param pourcentageACertifier : pourcentage à certifier (ex: 10 pour 10%)
+     * @return Plantation contenant les parcelles non-certifiées
+     */
+    public Plantation diviserPlantation(double pourcentageACertifier) {
+        if (this.typeFeve != Feve.F_HQ) {
+            return null; // Seules les plantations F_HQ peuvent être divisées
+        }
+        
+        if (pourcentageACertifier <= 0 || pourcentageACertifier >= 100) {
+            return null;
+        }
+        
+        // Calculer les parcelles de chaque partie
+        int parcellesCertifiees = (int) Math.ceil(this.parcelles * (pourcentageACertifier / 100.0));
+        int parcellesNonCertifiees = this.parcelles - parcellesCertifiees;
+        
+        // Créer une nouvelle plantation avec les parcelles non-certifiées
+        Plantation plantationNonCertifiee = new Plantation(Feve.F_HQ, parcellesNonCertifiees, this.age);
+        
+        // Réduire cette plantation à la portion certifiée
+        this.parcelles = parcellesCertifiees;
+        
+        return plantationNonCertifiee;
+    }
+    
+    /**
+     * Vérifie si les conditions équitables sont respectées
+     */
+    public boolean verifierConditionsEquitables() {
+        if (!estEquitable) {
+            return false;
+        }
+        return nombreOuvriers >= 30 && 
+               salaireMiniJournalier >= 4.0 && 
+               !travailEnfant;
+    }
+    
+    /**
+     * Retourne le coût du label équitable (tous les 2 next = 2 étapes)
+     */
+    public double getCoutLabelEquitable(int etapeActuelle) {
+        if (!estEquitable || !verifierConditionsEquitables()) {
+            return 0.0;
+        }
+        
+        // Paiement tous les 2 next
+        if (etapeLastCoutLabel == -1) {
+            this.etapeLastCoutLabel = etapeActuelle;
+            return coutLabelMensuel;
+        }
+        
+        if (etapeActuelle - etapeLastCoutLabel >= 2) {
+            this.etapeLastCoutLabel = etapeActuelle;
+            return coutLabelMensuel;
+        }
+        
+        return 0.0;
+    }
+    
+    /**
+     * Retourne le coût ajusté des ouvriers pour l'équitable
+     */
+    public double getCoutOuvriersEquitable() {
+        if (!estEquitable || !verifierConditionsEquitables()) {
+            return parcelles * salaire_employe;
+        }
+        // Coût = nombre d'ouvriers × salaire journalier × nombre de jours par step (2 jours)
+        double coutEquitable = nombreOuvriers * salaireMiniJournalier * 2; // 2 jours par step environ
+        return coutEquitable;
+    }
+    
+    // ========== Getters/Setters ==========
+    public boolean estEquitable() {
+        return estEquitable;
+    }
+    
+    public int getNombreOuvriers() {
+        return nombreOuvriers;
+    }
+    
+    public void setNombreOuvriers(int nombreOuvriers) {
+        this.nombreOuvriers = nombreOuvriers;
+    }
+    
+    public boolean hasTravailEnfant() {
+        return travailEnfant;
+    }
+    
+    public void setTravailEnfant(boolean travailEnfant) {
+        this.travailEnfant = travailEnfant;
+    }
+    
+    public double getSalaireMiniJournalier() {
+        return salaireMiniJournalier;
+    }
+    
+    public void setSalaireMiniJournalier(double salaire) {
+        this.salaireMiniJournalier = salaire;
     }
 }
