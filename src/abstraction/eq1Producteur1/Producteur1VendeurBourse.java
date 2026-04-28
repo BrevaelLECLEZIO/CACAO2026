@@ -1,19 +1,21 @@
 package abstraction.eq1Producteur1;
 
+import java.util.HashMap;
+
 import abstraction.eqXRomu.bourseCacao.IVendeurBourse;
 import abstraction.eqXRomu.produits.Feve;
 
 /** 
  * @author Elise Dossal & Théophile Trillat
  */
-public class Producteur1VendeurBourse extends Producteur1AcheteurBourse implements IVendeurBourse{
+public class Producteur1VendeurBourse extends Producteur1VendeurContractCadre implements IVendeurBourse{
 ///*
     private int blacklist=0;
+	protected HashMap<Feve , Double > pourcentageAVendre = new HashMap<Feve , Double>();
 	protected int periode = 8 ;
 
     public Producteur1VendeurBourse(){
         super();
-
 
     }
 
