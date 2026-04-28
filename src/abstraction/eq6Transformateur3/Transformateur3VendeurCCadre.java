@@ -1,119 +1,74 @@
 package abstraction.eq6Transformateur3;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import abstraction.eqXRomu.contratsCadres.Echeancier;
 import abstraction.eqXRomu.contratsCadres.ExemplaireContratCadre;
+import abstraction.eqXRomu.contratsCadres.IAcheteurContratCadre;
 import abstraction.eqXRomu.contratsCadres.IVendeurContratCadre;
-import abstraction.eqXRomu.general.Journal;
-import abstraction.eqXRomu.produits.Chocolat;
-import abstraction.eqXRomu.produits.ChocolatDeMarque;
+import abstraction.eqXRomu.filiere.Filiere;
+import abstraction.eqXRomu.produits.Feve;
 import abstraction.eqXRomu.produits.IProduit;
+import abstraction.eqXRomu.contratsCadres.SuperviseurVentesContratCadre;
 
-//@author: Le Clezio Brevael
-
-public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre implements IVendeurContratCadre{
-    protected Journal journalVente;
-
-public Transformateur3VendeurCCadre() {
-    super(); // très important
-
-    this.journalVente = new Journal("Journal Vente CC EQ6", this);
-}
-
-public boolean vend(IProduit produit) {
-    return produit == Chocolat.C_MQ_E || produit == Chocolat.C_HQ_E || this.stockchocomarque.containsKey(produit);
-}
-
-
-
-public List<Journal> getJournaux() {
-    List<Journal> res = super.getJournaux();
-    res.add(this.journalVente);
-    return res;
-}
-
-public double totalEngagement(IProduit produit) {
-    double total = 0.0;
-
-    for (ExemplaireContratCadre c : contratsEnCours) {
-        if (c.getProduit().equals(produit)) {
-            total += c.getQuantiteRestantALivrer();
+/** @author : Brevael Le Clezio */
+public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre implements IVendeurContratCadre {
+    
+    
+    public boolean vend(IProduit produit){
+        if (this.getStockProduit(produit)>200 && !produit.getType().equals("Feve")){
+            return true;
+        }
+        else{
+            return false;
         }
     }
 
-    return total;
-}
-
-    @Override
-public Echeancier contrePropositionDuVendeur(ExemplaireContratCadre contrat) {
-
-    Chocolat produit = (Chocolat) contrat.getProduit();
-
-    if (stockChocolat.getQuantite(produit) - totalEngagement(produit) > contrat.getQuantiteTotale()) {
-        return contrat.getEcheancier();
+    public Echeancier contrePropositionDuVendeur(ExemplaireContratCadre contrat){
+        Echeancier e = contrat.getEcheancier();
+        return e;
     }
 
-    return null;
-}
-
-public double propositionPrix(ExemplaireContratCadre contrat) {
-
-    IProduit produit = contrat.getProduit();
-    double stockDisponible;
-
-    if (produit instanceof ChocolatDeMarque) {
-        stockDisponible = stockchocomarque.getOrDefault((ChocolatDeMarque) produit, 0.0);
-    } else {
-        stockDisponible = stockChocolat.getQuantite((Chocolat) produit);
+    public double propositionPrix(ExemplaireContratCadre contrat){
+        return 9000;
     }
 
-    double pourcentage = contrat.getQuantiteTotale() / (stockDisponible - totalEngagement(produit));
+    public double contrePropositionPrixVendeur(ExemplaireContratCadre contrat){
+        return contrat.getPrix();
+    }
 
-    if (produit == Chocolat.C_MQ_E) return 11000;
-    if (produit == Chocolat.C_HQ_E) return 18000;
+    public void notificationNouveauContratCadre(ExemplaireContratCadre contrat){
 
-    if (produit instanceof ChocolatDeMarque) {
-        ChocolatDeMarque chocoMarque = (ChocolatDeMarque) produit;
-        double prixBase = 0.0;
-        switch (chocoMarque.getChocolat()) {
-            case C_MQ_E: prixBase = 11000; break;
-            case C_HQ_E: prixBase = 18000; break;
+    }
+
+
+    public double livrer(IProduit produit, double quantite, ExemplaireContratCadre contrat){
+        if (this.getStockProduit(produit)<0){
+            return 0;
         }
-        return prixBase + (1 - pourcentage) * 2000;
-    }
-
-    return 10000;
-}
-
-    public double contrePropositionPrixVendeur(ExemplaireContratCadre contrat) {
-        if (contrat.getPrix()-contrat.getListePrix().get(0)<250) {
-            return contrat.getPrix();
-        } else {
-            return contrat.getListePrix().get(0)-100;
+        else if (this.getStockProduit(produit)>=quantite){
+        this.setStockProduit(produit, this.getStockProduit(produit)-quantite);
+        return quantite;
+        }
+        else{
+            double alivrer=this.getStockProduit(produit);
+            this.setStockProduit(produit, 0);
+            return alivrer;
         }
     }
 
-
-public double livrer(IProduit produit, double quantite, ExemplaireContratCadre contrat) {
-
-    if (produit instanceof Chocolat) {
-        Chocolat choco = (Chocolat) produit;
-        double dispo = stockChocolat.getQuantite(choco);
-        double livrable = Math.min(dispo, quantite);
-        stockChocolat.retirerQuantite(choco, (int) livrable);
-        return livrable;
-    } else if (produit instanceof ChocolatDeMarque) {
-        ChocolatDeMarque chocoMarque = (ChocolatDeMarque) produit;
-        double dispo = stockchocomarque.getOrDefault(chocoMarque, 0.0);
-        double livrable = Math.min(dispo, quantite);
-        stockchocomarque.put(chocoMarque, dispo - livrable);
-        return livrable;
-    } else {
-        return 0.0;
+    /** @author : Pol Bailleul */
+    public void next(){
+        super.next();
+        SuperviseurVentesContratCadre sup =null;
+        sup= (SuperviseurVentesContratCadre)(Filiere.LA_FILIERE.getActeur("Sup.CCadre"));
+        List<IAcheteurContratCadre> acheteurs= sup.getAcheteurs(LamborghiniduCacao);
+        if (this.getStockProduit(LamborghiniduCacao)>200){
+        Echeancier e= new Echeancier(Filiere.LA_FILIERE.getEtape()+1,2,this.getStockProduit(LamborghiniduCacao)/2);
+        if (!acheteurs.isEmpty()) {
+            sup.demandeVendeur(acheteurs.get(0), this, LamborghiniduCacao, e, cryptogramme, false);
+        }
+        }
     }
-}
-
-
-
 }
