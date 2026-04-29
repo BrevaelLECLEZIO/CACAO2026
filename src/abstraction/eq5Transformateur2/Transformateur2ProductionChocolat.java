@@ -25,9 +25,9 @@ public class Transformateur2ProductionChocolat extends Transformateur2Fabriquant
         Filiere.LA_FILIERE.getBanque().payerCout(this, cryptogramme, "Salaires des employés", coutSalaires);
 
         // 2. OPTIMISATION DE LA PRODUCTION (Flux tendu)
-        double stockCibleHQ = 20000.0;
-        double stockCibleMQ = 20000.0;
-        double stockCibleBQ = 20000.0;
+        double stockCibleHQ = 100000.0;
+        double stockCibleMQ = 100000.0;
+        double stockCibleBQ = 100000.0;
 
         // On recrée nos références exactes pour lire les stocks
         ChocolatDeMarque chocoHQ = new ChocolatDeMarque(Chocolat.C_HQ, "Ferrara Rocher", 100);
