@@ -103,7 +103,9 @@ public class Producteur1VendeurContractCadre extends Producteur1Cooperative impl
 		// on regarde si c'est 3 fois la même proposition en face
 		List<Echeancier> lastEcheanchiers = contrat.getEcheanciers();
 
-		if(lastEcheanchiers.size() > 6 && lastEcheanchiers.get(lastEcheanchiers.size()-2) == e && lastEcheanchiers.get(lastEcheanchiers.size()-2) == e){
+		if(lastEcheanchiers.size() > 6
+				&& lastEcheanchiers.get(lastEcheanchiers.size()-3) == e
+				&& lastEcheanchiers.get(lastEcheanchiers.size()-5) == e){
 			return null;
 		}
 
@@ -142,7 +144,9 @@ public class Producteur1VendeurContractCadre extends Producteur1Cooperative impl
 			// on regarde si c'est 3 fois la même proposition en face
 			List<Echeancier> lastEcheanchiers = contrat.getEcheanciers();
 			Echeancier e = contrat.getEcheancier();
-			if(lastEcheanchiers.size() > 6 && lastEcheanchiers.get(lastEcheanchiers.size()-2) == e && lastEcheanchiers.get(lastEcheanchiers.size()-2) == e){
+			if(lastEcheanchiers.size() > 6
+					&& lastEcheanchiers.get(lastEcheanchiers.size()-3) == e
+					&& lastEcheanchiers.get(lastEcheanchiers.size()-5) == e){
 			return 0.;
 		}
 

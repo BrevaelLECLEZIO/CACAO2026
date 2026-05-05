@@ -170,15 +170,11 @@ public class Producteur1Planteur extends Producteur1Stock {
         this.journal.ajouter("Production estimée l'année prochaine : " + capaciteProchaine + " kg");
     }
  
-    public void impots() {
-        double montant = 250 * this.taille_totale;
-        Banque banque = Filiere.LA_FILIERE.getBanque();
-        banque.payerCout(this, this.cryptogramme, "Impot plantation", montant);
-        this.journal.ajouter("Impot plantation : " + montant);
+
 
     public void impots(){
         double montant = 250*this.taille_totale;
-        Banque banque=Filiere.LA_FILIERE.getBanque();
+        Banque banque = Filiere.LA_FILIERE.getBanque();
         banque.payerCout(this, this.cryptogramme, "Impot plantation" ,montant);
         this.journalBanque.ajouter("Impot plantation : " + montant);
     }

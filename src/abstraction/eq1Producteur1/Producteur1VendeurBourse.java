@@ -21,7 +21,7 @@ public class Producteur1VendeurBourse extends Producteur1VendeurContractCadre im
 
     public Producteur1VendeurBourse(){
         super();
-		this.journalBourse = new Journal(this.getNom()+" journal Bourse", this);
+		this.journalBourse = new Journal("Journal " + this.getNom()+" journal Bourse", this);
 
     }
 
