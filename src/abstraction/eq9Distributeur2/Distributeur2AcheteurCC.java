@@ -8,12 +8,11 @@ import abstraction.eqXRomu.contratsCadres.SuperviseurVentesContratCadre;
 import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.produits.ChocolatDeMarque;
 import abstraction.eqXRomu.produits.IProduit;
-import java.util.Arrays;
 import java.util.List;
 import java.util.LinkedList;
 
 /**
- * @author Paul Juhel et Paul ROSSIGNOL
+ * @author Paul Juhel
  */
 
 public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements IAcheteurContratCadre {
@@ -27,19 +26,14 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
     // Liste des contrats terminés
     protected List<ExemplaireContratCadre> contratsTermines;
 
-    // score de fidélité par vendeur logique opportuniste
-    protected java.util.Map<IVendeurContratCadre, Double> scoreFidelite;
-
     public Distributeur2AcheteurCC() {
         super();
-        this.contratsEnCours = new LinkedList<ExemplaireContratCadre>();
-        this.contratsTermines = new LinkedList<ExemplaireContratCadre>();
-        this.scoreFidelite = new java.util.HashMap<IVendeurContratCadre, Double>();
+        this.contratsEnCours = new LinkedList<>();
+        this.contratsTermines = new LinkedList<>();
     }
 
     @Override
     public void initialiser() {
-        super.initialiser();
         this.superviseurCC = (SuperviseurVentesContratCadre) Filiere.LA_FILIERE.getActeur("Sup.CCadre");
         this.journal.ajouter("Initialisation des CC");
     }
@@ -52,25 +46,11 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
         List<ChocolatDeMarque> produits = Filiere.LA_FILIERE.getChocolatsProduits();
 
         if (produits != null && !produits.isEmpty()) {
-            for (ChocolatDeMarque choco : produits) {
-                double quantiteActuelle = this.stock.getOrDefault(choco, 0.0);
-                double seuilMin = 10000.0;  // 10 tonnes : seuil déclenchant réappro
-                double stockCible = 50000.0; // 50 tonnes : stock visé
-
-                // On ne réapprovisionne que si on est en dessous du seuil
-                if (quantiteActuelle < seuilMin) {
-                    double ajout = stockCible - quantiteActuelle;
-                    this.stock.put(choco, quantiteActuelle + ajout);
-                    journal.ajouter("Réapprovisionnement " + choco.getNom() 
-                        + " : +" + (ajout/1000) + "t (stock était " 
-                        + (quantiteActuelle/1000) + "t)");
-                }
-                
-            }
             // Frais de stockage : 120 €/T par étape (16x le coût producteur de 7.5€/T)
             payerFraisStockage();
-            // Ajustement dynamique des prix de vente
-            ajusterPrix();
+            // --- V2 : Ajustement dynamique des prix de vente ---
+            ajusterPrixDynamiques();
+            fairePropositionCC();
         }
 
         this.indicateurStockTotal.setValeur(this, getStockTotal());
@@ -78,16 +58,24 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
     }
 
 
-    protected void evaluerFideliteContrats() {
-        for (ExemplaireContratCadre contrat : this.contratsEnCours) {
-            IVendeurContratCadre vendeur = contrat.getVendeur();
-            double prixCD = contrat.getPrix();
-            double prixConcurrent = prixCD * 0.98; // hypothèse prix concurrent meilleur
-            boolean garder = garderFournisseur(vendeur, prixCD, prixConcurrent);
-            if (!garder) {
-                this.journal.ajouter("Remplacement opportuniste du fournisseur " + vendeur.getNom() + " (prix=" + prixCD + ")");
-            }
+    /**
+     * Paie les frais de stockage pour cette étape
+     */
+    protected void payerFraisStockage() {
+        double stockTotalT = getStockTotal() / 1000.0;
+        double fraisStockage = stockTotalT * 120.0; // 120€/t
+        if (fraisStockage > 0) {
+            Filiere.LA_FILIERE.getBanque().payerCout(this, this.cryptogramme, "Frais de stockage", fraisStockage);
         }
+        this.journal.ajouter("Frais de stockage : " + fraisStockage + "€ pour " + stockTotalT + "t");
+    }
+
+    /**
+     * Ajuste les prix de vente de manière dynamique
+     */
+    protected void ajusterPrixDynamiques() {
+        // Placeholder pour ajustement dynamique des prix
+        // À implémenter selon la stratégie de l'équipe
     }
 
     //         IMPLEMENTATION DE L'INTERFACE IAcheteurContratCadre
@@ -97,13 +85,23 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
      * @param produit le produit concerné
      * @return true si prêt à négocier, false sinon
      */
+    
+    @Override
+    public double getQuantiteEnStock(IProduit p, int etape) {
+        return super.getQuantiteEnStock(p, this.cryptogramme);
+    }
 
     @Override
     public boolean achete(IProduit produit) {
-        // On accepte tous les contrats cadres pour les chocolats de marque
         if (produit instanceof ChocolatDeMarque) {
-            this.journal.ajouter("Prêt à négocier un contrat cadre pour " + produit);
-            return true;
+            ChocolatDeMarque choco = (ChocolatDeMarque) produit;
+            if (this.prix.containsKey(choco)) {
+                this.journal.ajouter("Prêt à négocier un contrat cadre pour " + choco.getNom());
+                return true;
+            } else {
+                this.journal.ajouter("Refus CC : pas de stratégie de prix pour " + choco.getNom());
+                return false;
+            }
         }
         return false;
     }
@@ -117,9 +115,49 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
     public Echeancier contrePropositionDeLAcheteur(ExemplaireContratCadre contrat) {
         Echeancier propositionVendeur = contrat.getEcheancier();
 
-        // Accepter l'échéancier tel quel
-        // A MODIFIER EN V2
-        this.journal.ajouter("Acceptation de l'échéancier pour " + contrat.getProduit());
+        // Analyser l'échéancier proposé
+        int stepDebut = propositionVendeur.getStepDebut();
+        int nbSteps = propositionVendeur.getNbEcheances();
+        double quantiteTotale = propositionVendeur.getQuantiteTotale();
+
+        // Préférences : livraison échelonnée sur plusieurs étapes pour réduire les risques
+        int stepCourant = Filiere.LA_FILIERE.getEtape();
+
+        // Si le début est trop proche ou trop lointain, proposer un ajustement
+        int debutOptimal = stepCourant + 2; // Préférer commencer dans 2 étapes
+        if (stepDebut < debutOptimal) {
+            int decalage = debutOptimal - stepDebut;
+            Echeancier contreProposition = new Echeancier(debutOptimal, nbSteps, quantiteTotale / nbSteps);
+            this.journal.ajouter("Contre-proposition échéancier : décalage à l'étape " + debutOptimal
+                + " (était " + stepDebut + ")");
+            return contreProposition;
+        } else if (stepDebut > debutOptimal + 3) {
+            int nouveauDebut = Math.max(stepCourant + 1, stepDebut - 2);
+            Echeancier contreProposition = new Echeancier(nouveauDebut, nbSteps, quantiteTotale / nbSteps);
+            this.journal.ajouter("Contre-proposition échéancier : anticipation à l'étape " + nouveauDebut
+                + " (était " + stepDebut + ")");
+            return contreProposition;
+        }
+
+        // Si la durée est trop courte ou trop longue, ajuster
+        if (nbSteps < 3) {
+            // Étaler sur plus d'étapes
+            int nouvelleDuree = Math.min(6, 24 - stepDebut);
+            Echeancier contreProposition = new Echeancier(stepDebut, nouvelleDuree, quantiteTotale / nouvelleDuree);
+            this.journal.ajouter("Contre-proposition échéancier : étalement sur " + nouvelleDuree
+                + " étapes (était " + nbSteps + ")");
+            return contreProposition;
+        } else if (nbSteps > 8) {
+            // Raccourcir
+            int nouvelleDuree = Math.max(3, nbSteps - 2);
+            Echeancier contreProposition = new Echeancier(stepDebut, nouvelleDuree, quantiteTotale / nouvelleDuree);
+            this.journal.ajouter("Contre-proposition échéancier : réduction à " + nouvelleDuree
+                + " étapes (était " + nbSteps + ")");
+            return contreProposition;
+        }
+
+        // Accepter l'échéancier
+        this.journal.ajouter("Acceptation de l'échéancier pour " + ((ChocolatDeMarque)contrat.getProduit()).getNom());
         return propositionVendeur;
     }
 
@@ -128,69 +166,114 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
      * @param contrat le contrat en négociation
      * @return le prix proposé, négatif pour abandonner, ou le même pour accepter
      */
+    /**
+     * @author Anass Ouisrani
+     */
     @Override
-    /** @author Anass Ouisrani*/
-public double contrePropositionPrixAcheteur(ExemplaireContratCadre contrat) {
-    // On récupère le prix que le vendeur propose
-    double prixPropose = contrat.getPrix();
-    
-    // On récupère le chocolat concerné par le contrat
-    ChocolatDeMarque choco = (ChocolatDeMarque) contrat.getProduit();
-    
-    // On récupère l'étape actuelle pour consulter le prix moyen du marché
-    int etape = Filiere.LA_FILIERE.getEtape();
+    public double contrePropositionPrixAcheteur(ExemplaireContratCadre contrat) {
+        double prixPropose = contrat.getPrix();
 
-    // On définit notre prix maximum acceptable selon la qualité du chocolat
-    double prixMax = getPrixMaxAcceptable(choco);
+        ChocolatDeMarque choco = (ChocolatDeMarque) contrat.getProduit();
 
-    // Si le vendeur demande plus que notre maximum → on abandonne la négociation
-    // -1.0 signifie "je me retire" dans le protocole
-    if (prixPropose > prixMax) {
-        this.journal.ajouter("Abandon négociation CC : prix " + prixPropose 
-            + "€/T trop élevé (max=" + prixMax + "€/T)");
-        return -1.0;
-    }
+        int etape = Filiere.LA_FILIERE.getEtape();
 
-    // On consulte le prix moyen du marché à l'étape précédente
-    // Si etape=0 on n'a pas de référence donc on met NaN (Not a Number = pas de valeur)
-    double prixMoyen = (etape >= 1) ? Filiere.LA_FILIERE.prixMoyen(choco, etape - 1) : Double.NaN;
+        EQ9_StrategieFixationPrix strat = new EQ9_StrategieFixationPrix(this.journal);
 
-    // Si on a une référence marché valide
-    if (!Double.isNaN(prixMoyen) && prixMoyen > 0) {
-        
-        // On propose 5% moins cher que ce que demande le vendeur
-        double contreProposition = prixPropose * 0.95;
-        
-        // Mais jamais en dessous de 98% du prix moyen marché
-        // sinon le vendeur refusera forcément
-        contreProposition = Math.max(contreProposition, prixMoyen * 0.98);
-        
-        // Si après calcul notre contre-proposition est >= au prix du vendeur
-        // ça ne sert à rien de négocier, on accepte directement
-        if (contreProposition >= prixPropose) {
-            this.journal.ajouter("Acceptation CC : " + prixPropose + "€/T pour " + choco.getNom());
+        // Simulation d’un prix de vente réaliste
+        double prixVenteEstime = strat.calculerPrixVente(
+            prixPropose, // on suppose que c’est le coût d’achat
+            choco.getNom(),
+            this.stock.getOrDefault(choco, 0.0),
+            20000.0, // demande estimée simple
+            prixPropose 
+        );
+
+        // marge minimale que tu veux garder
+        double margeMin = 1.2; // 20%
+
+        double prixMax = prixVenteEstime / margeMin;
+
+        // Si le vendeur demande plus que notre maximum → on abandonne la négociation
+        // -1.0 = stop dans le protocole
+        if (prixPropose > prixMax) {
+            this.journal.ajouter("Abandon négociation CC : prix " + prixPropose
+                + "€/T trop élevé (max=" + prixMax + "€/T)");
+            return -1.0;
+        }
+
+        // Évaluer notre situation financière
+        double solde = getSolde();
+        double quantiteTotale = contrat.getQuantiteTotale() / 1000.0; // en tonnes
+        double coutTotalEstime = quantiteTotale * prixPropose;
+
+        // Si on n'a pas les fonds, être plus ferme dans la négociation
+        double margeSecurite = (solde < coutTotalEstime * 2) ? 1.1 : 1.05;
+
+        // On consulte le prix moyen du marché à l'étape précédente
+        // Si etape=0 on n'a pas de référence donc on met NaN (Not a Number = pas de valeur)
+        double prixMoyen = (etape >= 1) ? Filiere.LA_FILIERE.prixMoyen(choco, etape - 1) : Double.NaN;
+
+        // Si on a une référence marché valide
+        if (!Double.isNaN(prixMoyen) && prixMoyen > 0) {
+
+            // Ajuster notre contre-proposition selon la situation
+            double contreProposition = prixPropose * 0.95; // Base : 5% de réduction
+
+            // Si le prix proposé est déjà attractif par rapport au marché, accepter
+            if (prixPropose <= prixMoyen * 1.05) {
+                this.journal.ajouter("Acceptation CC : prix attractif " + prixPropose + "€/T (marché=" + prixMoyen + ")");
+                return prixPropose;
+            }
+
+            // Réduire davantage si nécessaire
+            if (prixPropose > prixMoyen * 1.15) {
+                contreProposition = Math.max(contreProposition * 0.95, prixMoyen * 1.08);
+            }
+
+            // Mais jamais en dessous de 95% du prix moyen marché
+            contreProposition = Math.max(contreProposition, prixMoyen * 0.95);
+
+            // Si notre contre-proposition est proche du prix demandé, accepter directement
+            if (contreProposition >= prixPropose * 0.98) {
+                this.journal.ajouter("Acceptation CC : " + prixPropose + "€/T pour " + choco.getNom());
+                return prixPropose;
+            }
+
+            // Vérifier qu'on peut payer
+            double coutContreProposition = quantiteTotale * contreProposition;
+            if (solde < coutContreProposition * margeSecurite) {
+                // Fonds insuffisants, abandonner
+                this.journal.ajouter("Abandon CC : fonds insuffisants pour " + coutContreProposition
+                    + "€ (solde=" + solde + "€)");
+                return -1.0;
+            }
+
+            // On envoie notre contre-proposition
+            this.journal.ajouter("Contre-proposition CC : " + contreProposition
+                + "€/T (proposé=" + prixPropose + ", marché=" + prixMoyen + ")");
+
+            return contreProposition;
+        }
+
+        // Pas de référence marché disponible
+        // Accepter si le prix est raisonnable par rapport à notre maximum
+        if (prixPropose <= prixMax * 0.9) {
+            this.journal.ajouter("Acceptation CC (pas de ref marché) : " + prixPropose + "€/T");
             return prixPropose;
         }
-        
-        // On envoie notre contre-proposition
-        this.journal.ajouter("Contre-proposition CC : " + contreProposition 
-            + "€/T (proposé=" + prixPropose + ", marché=" + prixMoyen + ")");
-        return contreProposition;
+
+        // Faire une contre-proposition modérée
+        double contreProposition = Math.max(prixPropose * 0.97, prixMax * 0.85);
+        double coutContreProposition = quantiteTotale * contreProposition;
+
+        if (solde >= coutContreProposition * margeSecurite) {
+            this.journal.ajouter("Contre-proposition CC (pas de ref) : " + contreProposition + "€/T");
+            return contreProposition;
+        } else {
+            this.journal.ajouter("Abandon CC : fonds insuffisants (pas de ref marché)");
+            return -1.0;
+        }
     }
-
-    // Pas de référence marché disponible → on accepte le prix
-    // tant qu'il est dans nos limites (déjà vérifié au dessus)
-    this.journal.ajouter("Acceptation CC (pas de ref marché) : " + prixPropose + "€/T");
-    return prixPropose;
-}
-
-// Méthode utilitaire qui définit le prix maximum qu'on accepte
-// selon la qualité du chocolat (en €/T)
-// Ces valeurs sont nos prix d'achat maximum pour garder une marge rentable
-/** @author Anass Ouisrani*/
-private double getPrixMaxAcceptable(ChocolatDeMarque choco) {
-    return prix(choco) * 0.75; // 25% de marge systématique
-}
 
     /**
      * Notification de la réussite des négociations
@@ -200,31 +283,8 @@ private double getPrixMaxAcceptable(ChocolatDeMarque choco) {
     public void notificationNouveauContratCadre(ExemplaireContratCadre contrat) {
         this.contratsEnCours.add(contrat);
 
-        // Mise à jour fidélité
-        IVendeurContratCadre v = contrat.getVendeur();
-        double oldScore = this.scoreFidelite.getOrDefault(v, 0.3);
-        double nouvelScore = Math.min(1.0, oldScore + 0.10);
-        this.scoreFidelite.put(v, nouvelScore);
-
-        this.journal.ajouter("Nouveau contrat cadre signé pour " + contrat.getProduit() +
-                           " : " + contrat.getQuantiteTotale() + "t à " + contrat.getPrix() + "€/t" +
-                           " (score fidélité " + String.format("%.2f", nouvelScore) + ")");
-    }
-
-    /**
-     * Détermination de conservation d'un fournisseur
-     */
-    public boolean garderFournisseur(IVendeurContratCadre vendeur, double prixActuel, double prixConcurrentMax) {
-        double remiseHistorique = this.scoreFidelite.getOrDefault(vendeur, 0.3);
-        double diffRel = (prixActuel - prixConcurrentMax) / Math.max(1.0, prixConcurrentMax);
-
-        if (diffRel > 0.05 && remiseHistorique < 0.6) {
-            return false;
-        }
-        if (remiseHistorique >= 0.7) {
-            return true;
-        }
-        return diffRel <= 0.03;
+        this.journal.ajouter("Nouveau contrat cadre signé pour " + ((ChocolatDeMarque)contrat.getProduit()).getNom() +
+                           " : " + contrat.getQuantiteTotale() + "t à " + contrat.getPrix() + "€/t");
     }
 
     /**
@@ -274,7 +334,7 @@ private double getPrixMaxAcceptable(ChocolatDeMarque choco) {
      * @return liste des contrats actifs
      */
     public List<ExemplaireContratCadre> getContratsEnCours() {
-        return new LinkedList<ExemplaireContratCadre>(this.contratsEnCours);
+        return new LinkedList<>(this.contratsEnCours);
     }
 
     /**
@@ -282,39 +342,91 @@ private double getPrixMaxAcceptable(ChocolatDeMarque choco) {
      * @return liste des contrats terminés
      */
     public List<ExemplaireContratCadre> getContratsTermines() {
-        return new LinkedList<ExemplaireContratCadre>(this.contratsTermines);
+        return new LinkedList<>(this.contratsTermines);
     }
 
     /**
-     * Méthode pour initier des propositions de contrats cadres (V1)
+     * Méthode pour initier des propositions de contrats cadres
+     * @author Paul JUHEL
      */
-    /**
-    * @author Paul JUHEL
-    */
     public void fairePropositionCC() {
         List<ChocolatDeMarque> produits = Filiere.LA_FILIERE.getChocolatsProduits();
         for (ChocolatDeMarque choco : produits) {
             double stockActuel = this.stock.getOrDefault(choco, 0.0);
-            double seuilDeSecurite = 10000.0; // 10 tonnes
-            if (stockActuel < seuilDeSecurite) {
+            double enCours = restantDu(choco);
+            double seuilDeSecurite = 10000 ;
+            double stockProjete = stockActuel + enCours;
+
+            if (stockProjete < seuilDeSecurite) {
                 double quantiteCible = 50000.0; // 50 tonnes
                 double quantiteAcheter = quantiteCible - stockActuel;
                 if (quantiteAcheter < 1000.0) { // Minimum 1 tonne
                     continue;
                 }
+
+                // Vérifier les fonds disponibles (estimation prudente)
+                double prixEstime = getPrixMaxAcceptable(choco);
+                double coutEstime = (quantiteAcheter / 1000.0) * prixEstime;
+                if (getSolde() < coutEstime * 1.2) { // Marge de sécurité
+                    this.journal.ajouter("Fonds insuffisants pour CC " + choco.getNom()
+                        + " : besoin " + coutEstime + "€, solde " + getSolde() + "€");
+                    continue;
+                }
+
                 List<IVendeurContratCadre> vendeurs = this.superviseurCC.getVendeurs(choco);
+                if (vendeurs.isEmpty()) {
+                    this.journal.ajouter("Aucun vendeur disponible pour " + choco.getNom());
+                    continue;
+                }
+
+                // Essayer de négocier avec les vendeurs
+                boolean propositionReussie = false;
                 for (IVendeurContratCadre vendeur : vendeurs) {
                     int stepDebut = Filiere.LA_FILIERE.getEtape() + 1;
-                    int nbSteps = 6;
+                    int nbSteps = Math.min(6, 24 - stepDebut);
+                    if (nbSteps <= 0) continue;
+
                     double quantiteParStep = quantiteAcheter / nbSteps;
                     Echeancier echeancierPropose = new Echeancier(stepDebut, nbSteps, quantiteParStep);
-                    ExemplaireContratCadre contrat = this.superviseurCC.demandeAcheteur(this, vendeur, choco, echeancierPropose, this.cryptogramme, false);
+
+                    // Initier la négociation (le résultat sera géré par les méthodes de contre-proposition)
+                    ExemplaireContratCadre contrat = this.superviseurCC.demandeAcheteur(
+                        this, vendeur, choco, echeancierPropose, this.cryptogramme, false);
+
                     if (contrat != null) {
-                        this.journal.ajouter("Proposition CC réussie pour " + (quantiteAcheter/1000) + "t de " + choco.getNom() + " chez " + vendeur.getNom());
-                        break;
+                        this.journal.ajouter("Proposition CC initiée pour " + (quantiteAcheter/1000)
+                            + "t de " + choco.getNom() + " chez " + vendeur.getNom());
+                        propositionReussie = true;
+                        break; // On s'arrête au premier vendeur qui accepte de négocier
+                    } else {
+                        this.journal.ajouter("Proposition CC rejetée par " + vendeur.getNom()
+                            + " pour " + choco.getNom());
                     }
+                }
+
+                if (!propositionReussie) {
+                    this.journal.ajouter("Échec de toutes les propositions CC pour " + choco.getNom());
                 }
             }
         }
+    }
+
+    /**
+     * Méthode utilitaire qui définit le prix maximum qu'on accepte
+     * selon la qualité du chocolat (en €/T)
+     * Ces valeurs sont nos prix d'achat maximum pour garder une marge rentable
+     */
+    private double getPrixMaxAcceptable(ChocolatDeMarque choco) {
+        return this.prix.getOrDefault(choco, 100.0) * 0.75; // 25% de marge systématique
+    }
+
+    @Override
+    public Filiere getFiliere(String nom) {
+        return Filiere.LA_FILIERE;
+    }
+
+    @Override
+    public java.util.List<String> getNomsFilieresProposees() {
+        return new java.util.ArrayList<>();
     }
 }
