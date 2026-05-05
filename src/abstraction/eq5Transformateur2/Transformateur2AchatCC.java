@@ -64,7 +64,12 @@ public class Transformateur2AchatCC extends Transformateur2VendeurAuxEncheres im
 				for (int index = debut; index < debut+5; index++) {
 					proposition.ajouter(echeancier.getQuantite(index));
 				}
-				return proposition;
+				if(proposition.echeancierAcceptable()){
+					return proposition;
+				}
+				else{
+					return null;
+				}
 			}
 
 	}
