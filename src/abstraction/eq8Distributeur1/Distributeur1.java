@@ -36,7 +36,6 @@ public class Distributeur1 extends MiseEnRayon {
 		//Choix de l'acteur
 		this.trierChocolatsParPrix();
 		if (Filiere.LA_FILIERE.getEtape() == 1) {
-			this.initialiserPrixReferenceUniquementChocolats();
 			this.initialiser();
 		}
 		this.lancerApprovisionnementGeneral(volumeCibleTotal);
