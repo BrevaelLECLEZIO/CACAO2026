@@ -17,6 +17,11 @@ import abstraction.eqXRomu.produits.IProduit;
 public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarque {
 	protected int cryptogramme;
 	protected Journal journal;
+	protected Journal journalStocks;
+	protected Journal journalCC;
+	protected Journal journalAO;
+	protected Journal journalVentes;
+	protected Journal journalFinancier;
 	protected Map<IProduit, Double> stock;
 	protected Variable indicateurStockTotal;
     protected Map<ChocolatDeMarque, Double> prix;
@@ -34,7 +39,12 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
      * @author Paul Juhel
      */
 	public Distributeur2Acteur() {
-		this.journal = new Journal("Journal EQ9", this);
+		this.journal = new Journal("Journal EQ9 - Général", this);
+		this.journalStocks = new Journal("Journal EQ9 - Stocks", this);
+		this.journalCC = new Journal("Journal EQ9 - Contrats Cadres", this);
+		this.journalAO = new Journal("Journal EQ9 - Appels d'offres", this);
+		this.journalVentes = new Journal("Journal EQ9 - Ventes", this);
+		this.journalFinancier = new Journal("Journal EQ9 - Finances", this);
 		this.stock = new HashMap<>();
         this.prix = new HashMap<>();
         this.strategieFixationPrix = new EQ9_StrategieFixationPrix(this.journal);
@@ -137,7 +147,36 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 	public List<Journal> getJournaux() {
 		List<Journal> res=new ArrayList<Journal>();
 		res.add(journal);
+		res.add(journalStocks);
+		res.add(journalCC);
+		res.add(journalAO);
+		res.add(journalVentes);
+		res.add(journalFinancier);
 		return res;
+	}
+
+	public Journal getJournalGeneral() {
+		return this.journal;
+	}
+
+	public Journal getJournalStocks() {
+		return this.journalStocks;
+	}
+
+	public Journal getJournalCC() {
+		return this.journalCC;
+	}
+
+	public Journal getJournalAO() {
+		return this.journalAO;
+	}
+
+	public Journal getJournalVentes() {
+		return this.journalVentes;
+	}
+
+	public Journal getJournalFinancier() {
+		return this.journalFinancier;
 	}
 
 	////////////////////////////////////////////////////////
@@ -155,16 +194,16 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 	
 	public void notificationFaillite(IActeur acteur) {
 		if (acteur != null) {
-			journal.ajouter("Information : " + acteur.getNom() + " a fait faillite");
+			getJournalGeneral().ajouter("Information : " + acteur.getNom() + " a fait faillite");
 		}
 	}
 
 	//Nous informer apres chaque operation sur votre compte bancaire, 
 	public void notificationOperationBancaire(double montant) {
 		if (montant > 0) {
-			journal.ajouter("Crédit bancaire : +" + montant + "€");
+			journalFinancier.ajouter("Crédit bancaire : +" + montant + "€");
 		} else {
-			journal.ajouter("Débit bancaire : " + montant + "€");
+			journalFinancier.ajouter("Débit bancaire : " + montant + "€");
 		}
 	}
 
@@ -221,7 +260,7 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 @Override
     public double quantiteEnVente(ChocolatDeMarque choco, int crypto) {
         if (crypto != this.cryptogramme) {
-            this.journal.ajouter("Tentative accès non autorisé quantiteEnVente");
+            getJournalGeneral().ajouter("Tentative accès non autorisé quantiteEnVente");
             return 0.0;
         }
         double qStock = this.stock.getOrDefault(choco, 0.0);
@@ -231,7 +270,7 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 @Override
     public double quantiteEnVenteTG(ChocolatDeMarque choco, int crypto) {
         if (crypto != this.cryptogramme) {
-            this.journal.ajouter("Tentative accès non autorisé quantiteEnVenteTG");
+            getJournalGeneral().ajouter("Tentative accès non autorisé quantiteEnVenteTG");
             return 0.0;
         }
         return quantiteEnVente(choco, crypto) * 0.10;
@@ -240,31 +279,31 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 @Override
     public void vendre(ClientFinal client, ChocolatDeMarque choco, double quantite, double montant, int crypto) {
         if (crypto != this.cryptogramme) {
-            this.journal.ajouter("Tentative accès non autorisé vendre");
-            return;
-        }
-        double stockActuel = this.stock.getOrDefault(choco, 0.0);
-        if (quantite <= 0 || quantite > stockActuel) {
-            this.journal.ajouter("Stock insuffisant pour " + choco.getNom() + ": demandé " + (quantite/1000) + "t, dispo " + (stockActuel/1000) + "t");
-            return;
-        }
-        this.stock.put(choco, stockActuel - quantite);
-        this.indicateurStockTotal.setValeur(this, getStockTotal());
-        this.journal.ajouter("Vente de " + (quantite/1000) + "t de " + choco.getNom() + " pour " + montant + " €");
-}
+			getJournalGeneral().ajouter("Tentative accès non autorisé vendre");
+			return;
+		}
+		double stockActuel = this.stock.getOrDefault(choco, 0.0);
+		if (quantite <= 0 || quantite > stockActuel) {
+			this.journalStocks.ajouter("Stock insuffisant pour " + choco.getNom() + ": demandé " + (quantite/1000) + "t, dispo " + (stockActuel/1000) + "t");
+			return;
+		}
+		this.stock.put(choco, stockActuel - quantite);
+		this.indicateurStockTotal.setValeur(this, getStockTotal());
+		this.journalVentes.ajouter("Vente de " + (quantite/1000) + "t de " + choco.getNom() + " pour " + montant + " €");
+	}
 
-@Override
+    @Override
     public void notificationRayonVide(ChocolatDeMarque choco, int crypto) {
         if (crypto != this.cryptogramme) return;
-        this.journal.ajouter("RUPTURE STOCK : " + choco.getNom() + " - Rayon vide ! Augmenter les achats.");
+        this.journalStocks.ajouter("RUPTURE STOCK : " + choco.getNom() + " - Rayon vide ! Augmenter les achats.");
     }
 
-/**
- * Paie les frais de stockage à chaque étape
- * Coût : 120 €/T (16x le coût producteur de 7.5€/T)
- * @author Anass Ouisrani
- */
-protected void payerFraisStockage() {
+    /**
+     * Paie les frais de stockage à chaque étape
+     * Coût : 120 €/T (16x le coût producteur de 7.5€/T)
+     * @author Anass Ouisrani
+     */
+    protected void payerFraisStockage() {
     double coutParTonne = 120.0; // €/T
     double stockTotalEnTonnes = getStockTotal() / 1000.0;
     double coutTotal = stockTotalEnTonnes * coutParTonne;
@@ -276,7 +315,7 @@ protected void payerFraisStockage() {
             "Frais de stockage",
             coutTotal
         );
-        this.journal.ajouter("Frais de stockage payés : "
+        this.journalFinancier.ajouter("Frais de stockage payés : "
             + coutTotal + "€ pour "
             + stockTotalEnTonnes + "t stockées");
     }
@@ -318,7 +357,7 @@ protected void ajusterPrixDynamiques() {
         );
 
         this.prix.put(choco, prixOptimal);
-        this.journal.ajouter("Prix ajusté " + choco.getNom() 
+        getJournalGeneral().ajouter("Prix ajusté " + choco.getNom() 
             + " : " + prixOptimal + "€/T"
             + " (coût=" + coutAchat + ", demande=" + (demande/1000) + "t)");
 

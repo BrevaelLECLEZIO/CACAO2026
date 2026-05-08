@@ -39,12 +39,12 @@ public class Distributeur2AcheteurAO extends Distributeur2Acteur implements IAch
         if (stockActuel < seuilMin) {
             
             quantiteAO = stockCible - stockActuel;
-            this.journal.ajouter("Stock critique pour " + choco.getNom() 
+            this.journalAO.ajouter("Stock critique pour " + choco.getNom() 
                 + " (" + (stockActuel/1000) + "t) → réappro obligatoire");
         } else if (stockActuel < stockCible) {
             
             quantiteAO = (stockCible - stockActuel) * 0.5;
-            this.journal.ajouter("Stock bas pour " + choco.getNom() 
+            this.journalAO.ajouter("Stock bas pour " + choco.getNom() 
                 + " (" + (stockActuel/1000) + "t) → réappro partiel");
         } else {
             
@@ -60,7 +60,7 @@ public class Distributeur2AcheteurAO extends Distributeur2Acteur implements IAch
         double prixEstime = prix(choco);
         double coutEstime = (quantiteAO / 1000.0) * prixEstime * 0.75;
         if (getSolde() < coutEstime) {
-            this.journal.ajouter("Fonds insuffisants pour " + choco.getNom() 
+            this.journalAO.ajouter("Fonds insuffisants pour " + choco.getNom() 
                 + " : solde=" + getSolde() + "€, besoin=" + coutEstime + "€");
             continue;
         }
@@ -75,11 +75,11 @@ public class Distributeur2AcheteurAO extends Distributeur2Acteur implements IAch
             this.stock.put(choco, stockActuelApreAchat + quantiteAchetee);
             this.indicateurStockTotal.setValeur(this, getStockTotal());
 
-            this.journal.ajouter("Achat réussi : " + (quantiteAchetee/1000) + "t de "
+            this.journalAO.ajouter("Achat réussi : " + (quantiteAchetee/1000) + "t de "
                 + choco.getNom() + " à " + prixAchat + "€/T chez "
                 + offreRetenue.getVendeur().getNom());
         } else {
-            this.journal.ajouter("Aucune offre pour " + choco.getNom());
+            this.journalAO.ajouter("Aucune offre pour " + choco.getNom());
         }
     }
 }
@@ -106,7 +106,7 @@ public OffreVente choisirOV(List<OffreVente> propositions) {
 
         // Rejeter si vente à perte
         if (prixPropose >= prix(choco)) {
-            this.journal.ajouter("Offre rejetée (vente à perte) : "
+            this.journalAO.ajouter("Offre rejetée (vente à perte) : "
                 + choco.getNom() + " à " + prixPropose + "€/T");
             continue;
         }
@@ -124,11 +124,11 @@ public OffreVente choisirOV(List<OffreVente> propositions) {
 
     if (meilleureOffre != null) {
         ChocolatDeMarque choco = (ChocolatDeMarque) meilleureOffre.getProduit();
-        this.journal.ajouter("Offre retenue : " + meilleurPrix 
+        this.journalAO.ajouter("Offre retenue : " + meilleurPrix 
             + "€/T de " + choco.getMarque()
             + " (marge=" + (prix(choco) - meilleurPrix) + "€/T)");
     } else {
-        this.journal.ajouter("Aucune offre acceptable");
+        this.journalAO.ajouter("Aucune offre acceptable");
     }
 
     return meilleureOffre;
