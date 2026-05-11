@@ -2,8 +2,13 @@ package abstraction.eq5Transformateur2;
 
 
 import abstraction.eqXRomu.contratsCadres.*;
+import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.produits.IProduit;
+import abstraction.eqXRomu.produits.ChocolatDeMarque;
 import abstraction.eqXRomu.produits.Feve;
+
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -12,8 +17,11 @@ import java.util.List;
  */
 public class Transformateur2AchatCC extends Transformateur2VendeurAuxEncheres implements IAcheteurContratCadre{
 
+	protected List<ExemplaireContratCadre> mesContratsEnCours;
+
     public Transformateur2AchatCC() {
         super();
+		this.mesContratsEnCours = new LinkedList<ExemplaireContratCadre>();
     }
 
 	/**
@@ -111,7 +119,13 @@ public class Transformateur2AchatCC extends Transformateur2VendeurAuxEncheres im
 	 * @param contrat
 	 */
 	public void notificationNouveauContratCadre(ExemplaireContratCadre contrat){
-		this.getJournaux().get(3).ajouter("Achat fève en CC : " + contrat.toString() + "\n");
+		this.mesContratsEnCours.add(contrat);
+		if (contrat.getProduit() instanceof Feve){
+			this.getJournaux().get(3).ajouter("Achat fève en CC : " + contrat.toString() + "\n");
+		}
+		else if (contrat.getProduit() instanceof ChocolatDeMarque){
+			this.getJournaux().get(4).ajouter("Vente chocolat en CC : " + contrat.toString() + "\n");
+		}
 	}
 
 	/**
@@ -131,5 +145,53 @@ public class Transformateur2AchatCC extends Transformateur2VendeurAuxEncheres im
 		}
 	}
 
+	@Override
+    public void next() {
+        super.next();
+
+        // 1. Définition des besoins cibles en fèves (pour couvrir vos 100k de choco)
+        HashMap<Feve, Double> ciblesFeves = new HashMap<>();
+        ciblesFeves.put(Feve.F_HQ, 49000.0);
+        ciblesFeves.put(Feve.F_MQ, 77000.0);
+        ciblesFeves.put(Feve.F_BQ, 119000.0);
+
+        for (Feve f : ciblesFeves.keySet()) {
+            double stockActuel = this.getStock_feve(f);
+            
+            // 2. On calcule ce qui arrive déjà par NOS contrats cadres en cours
+            double attendu = 0;
+            
+            // Boucle sur notre propre registre interne
+            for (ExemplaireContratCadre c : this.mesContratsEnCours) {
+                // On vérifie que le contrat nous concerne en tant qu'acheteur et que c'est la bonne fève
+                if (c.getAcheteur().equals(this) && c.getProduit().equals(f)) {
+                    // Utilisation de la méthode corrigée (sans 'e' à Restant)
+                    attendu += c.getQuantiteRestantALivrer();
+                }
+            }
+
+            // 3. Si (Stock actuel + Fèves en livraison) < Cible, on cherche activement un vendeur
+            if (stockActuel + attendu < ciblesFeves.get(f)) {
+                double quantiteAManquer = ciblesFeves.get(f) - (stockActuel + attendu);
+                
+                // On cherche la liste des producteurs qui vendent cette fève
+                List<IVendeurContratCadre> vendeurs = ((SuperviseurVentesContratCadre) Filiere.LA_FILIERE.getActeur("Sup.CCadre")).getVendeurs(f);
+                
+                if (!vendeurs.isEmpty()) {
+                    // On choisit un vendeur (ici le premier de la liste, pour simplifier)
+                    IVendeurContratCadre vendeur = vendeurs.get(0);
+                    
+                    // On propose un contrat étalé sur 10 étapes pour lisser l'arrivée dans l'usine
+                    Echeancier echeancier = new Echeancier(Filiere.LA_FILIERE.getEtape() + 1, 10, quantiteAManquer / 10);
+                    
+                    // On lance la demande officielle de négociation au Superviseur
+                    ((SuperviseurVentesContratCadre) Filiere.LA_FILIERE.getActeur("Sup.CCadre")).demandeAcheteur(this, vendeur, f, echeancier, cryptogramme, false);
+                }
+            }
+        }
+        
+        // 4. Nettoyage : On supprime de notre liste les contrats qui sont totalement terminés
+        this.mesContratsEnCours.removeIf(c -> c.getQuantiteRestantALivrer() == 0);
+    }
 }
     

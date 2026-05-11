@@ -26,12 +26,14 @@ public class Transformateur2AchatAppelOffre extends Transformateur2AcheteurBours
         
         // 2. Optimisation : On récupère le cours de la bourse UNE SEULE FOIS avant la boucle
         double coursMQ = ((BourseCacao) (Filiere.LA_FILIERE.getActeur("BourseCacao"))).getCours(Feve.F_MQ).getValeur();
-        
+        double seuilPaiement = (this.getStock_feve(Feve.F_MQ) < 1000) ? 1.05 : 0.98;
+
         // 3. Boucle moderne (For-Each) plus lisible
         for (OffreVente ov : propositions) {
             
             // On vérifie que le prix total est inférieur ou égal à 97% du cours de la bourse pour cette quantité
-            if (ov.getPrixT() <= ov.getQuantiteT() * coursMQ * 0.97) {
+            if (ov.getPrixT() <= ov.getQuantiteT() * coursMQ * seuilPaiement) {
+
                 
                 // Si c'est la première offre valide (meilleureOffre == null) 
                 // OU si cette offre est MOINS CHÈRE que l'ancienne meilleure offre trouvée

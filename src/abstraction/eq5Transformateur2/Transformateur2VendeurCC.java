@@ -129,7 +129,10 @@ public class Transformateur2VendeurCC extends Transformateur2AchatCC implements 
         // 2. Si le prix proposé par l'acheteur est déjà supérieur à notre minimum, 
         // c'est parfait, on accepte tout de suite !
         if (contrat.getPrix() >= prixPlancherTonne) {
+            this.getJournaux().get(4).ajouter(contrat.toString()+ "\n");
             return contrat.getPrix();
+            
+
         }
 
         // 3. Sinon, on négocie
@@ -142,9 +145,10 @@ public class Transformateur2VendeurCC extends Transformateur2AchatCC implements 
         
         // Tours suivants : On fait un pas vers l'acheteur (on coupe la poire en deux)
         double notreDerniereOffre = listePrix.get(listePrix.size() - 2);
-        double nouvelleOffre = (contrat.getPrix() + notreDerniereOffre) / 2;
+        double nouvelleOffre = (4*contrat.getPrix() + 6*notreDerniereOffre) / 10;
         
         if (contrat.getPrix() >= nouvelleOffre) {
+            this.getJournaux().get(4).ajouter(contrat.toString()+ "\n");
             return contrat.getPrix();
         } else{
         return nouvelleOffre;
@@ -158,10 +162,12 @@ public class Transformateur2VendeurCC extends Transformateur2AchatCC implements 
 
         if (stockDispo >= quantite){
             this.remove_chocolatDeMarque(cdm, quantite); // <--- LIGNE CRITIQUE
+            this.getJournaux().get(4).ajouter(contrat.toString()+ "\n");
             return quantite;
         } else {
             // On livre ce qu'il nous reste
             this.remove_chocolatDeMarque(cdm, stockDispo); // <--- LIGNE CRITIQUE
+            this.getJournaux().get(4).ajouter(contrat.toString()+ "\n");
             return stockDispo; 
         }
     }
