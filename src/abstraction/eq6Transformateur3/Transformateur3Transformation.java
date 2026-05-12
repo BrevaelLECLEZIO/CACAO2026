@@ -60,14 +60,18 @@ public class Transformateur3Transformation extends Transformateur3Acteur{
     private static final double IMPACT_MARQUE_QUALITE_PERCUE = 0.3;
     private static final double IMPACT_CACAO_QUALITE_PERCUE = 0.3;
 
+    protected Journal journaltransfo;
+
     public Transformateur3Transformation() {
         this.nbOuvriers = 100;
         this.nbMachines = 2;
+        this.journaltransfo = new Journal("Journal de transformation eq6", this);
     }
 
     public Transformateur3Transformation( int nbOuvriers, int nbMachines) {
         this.nbOuvriers = nbOuvriers;
         this.nbMachines = nbMachines;
+        this.journaltransfo = new Journal("Journal de transformation eq6", this);
     }
 
     public int getNbOuvriers() {
@@ -262,14 +266,15 @@ public class Transformateur3Transformation extends Transformateur3Acteur{
      */
     public Chocolat transformer(Feve feve, double quantiteFevesUtilisee, double pourcentageCacao, double noteMarque) {
        if (!peutTransformer(feve, quantiteFevesUtilisee, pourcentageCacao)) {
-           this.journal.ajouter("Transformation impossible : " + quantiteFevesUtilisee + " T de " + feve
+           this.journaltransfo.ajouter("Transformation impossible : " + quantiteFevesUtilisee + " T de " + feve
                    + " avec pourcentage cacao = " + pourcentageCacao);
            return null;
+           
        }
 
        Chocolat chocolatProduit = chocolatCorrespondant(feve, pourcentageCacao);
        if (chocolatProduit == null) {
-           this.journal.ajouter("Aucun chocolat correspondant pour " + feve
+           this.journaltransfo.ajouter("Aucun chocolat correspondant pour " + feve
                    + " avec pourcentage cacao = " + pourcentageCacao);
            return null;
        }
@@ -286,10 +291,18 @@ public class Transformateur3Transformation extends Transformateur3Acteur{
     // Ajout du chocolat au stock
        this.stockChocolat.ajouterQuantite(chocolatProduit, quantiteChocolatProduite);
 
+       if (chocolatProduit == Chocolat.C_MQ || chocolatProduit == Chocolat.C_HQ && feve.isEquitable()) {
+           double stockActuel = this.getStockProduit(this.LamborghiniduCacao);
+           this.setStockProduit(this.LamborghiniduCacao, stockActuel + quantiteChocolatProduite);
+        } 
+        else {
+           this.stockChocolat.ajouterQuantite(chocolatProduit, quantiteChocolatProduite);
+        }
+
     // Coût calculé à partir des fèves utilisées et du chocolat produit
        double cout = coutTransformation(quantiteChocolatProduite);
 
-       this.journal.ajouter("Transformation de " + quantiteFevesUtilisee + " T de " + feve
+       this.journaltransfo.ajouter("Transformation de " + quantiteFevesUtilisee + " T de " + feve
                + " en " + quantiteChocolatProduite + " T de " + chocolatProduit
                + " | % cacao = " + pourcentageCacao
                + " | qualité perçue = " + qualitePercue
@@ -309,6 +322,7 @@ public class Transformateur3Transformation extends Transformateur3Acteur{
      * noteMarque par défaut = 1.0
      */
     public void next() {
+        super.next();
         double capaciteRestante = capaciteProduction();
         double noteMarque = 1.0;
 
@@ -338,5 +352,11 @@ public class Transformateur3Transformation extends Transformateur3Acteur{
                 capaciteRestante -= quantiteATransformer;
             }
         }
+    }
+
+    public List<Journal> getJournaux() {
+        List<Journal> res = super.getJournaux();
+        res.add(this.journaltransfo);
+        return res;
     }
 }
