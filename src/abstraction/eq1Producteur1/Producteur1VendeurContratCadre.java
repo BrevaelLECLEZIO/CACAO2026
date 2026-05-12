@@ -275,7 +275,7 @@ public class Producteur1VendeurContratCadre extends Producteur1Cooperative imple
 
 
 	public void renouvellementContratCadre(IAcheteurContratCadre acheteur, Feve f, ExemplaireContratCadre contrat){
-		int temps         = contrat.getEcheancier().getStepFin() - contrat.getEcheancier().getStepDebut();
+		int temps = 24; // durée fixe d'un renouvellement, comme dans propositionContratCadre
 		double quantiteTot = Math.min(contrat.getQuantiteTotale(), this.stock.get(f) * (100 - this.pourcentageAVendre.get(f) - 5) / 100);
 
 		if (quantiteTot <= 0) {
@@ -284,7 +284,7 @@ public class Producteur1VendeurContratCadre extends Producteur1Cooperative imple
 		}
 
 		ArrayList<Double> quantites = new ArrayList<>();
-		for (int k = 1; k < temps + 1; k++) {
+		for (int k = 0; k < temps; k++) {
 			quantites.add(quantiteTot / temps);
 		}
 
