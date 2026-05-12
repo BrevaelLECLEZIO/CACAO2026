@@ -20,6 +20,10 @@ public class Producteur3Stock {
         }
     }
 
+    public HashMap<Feve, List<Double>> getStockMap(){
+        return this.stock;
+    }
+
     public double getStock(Feve f) {
         double tot = 0;
         if (this.stock.get(f) != null) {
