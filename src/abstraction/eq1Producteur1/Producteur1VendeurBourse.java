@@ -12,7 +12,7 @@ import java.awt.Color;
 /** 
  * @author Elise Dossal & Théophile Trillat
  */
-public class Producteur1VendeurBourse extends Producteur1VendeurContractCadre implements IVendeurBourse{
+public class Producteur1VendeurBourse extends Producteur1VendeurContratCadre implements IVendeurBourse{
 ///*
     private int blacklist=0;
 	protected HashMap<Feve , Double > pourcentageAVendre = new HashMap<Feve , Double>();
@@ -43,7 +43,7 @@ public class Producteur1VendeurBourse extends Producteur1VendeurContractCadre im
 		}
 
 		int etape = Filiere.LA_FILIERE.getEtape();
-		if (this.periode < etape % 24){
+		if (etape % 24 >= this.periode) {  // vendre après une certaine période du cycle
 
 			double stock = getStock(f);
 
@@ -116,6 +116,7 @@ public class Producteur1VendeurBourse extends Producteur1VendeurContractCadre im
 		res.add(this.journalBourse);
 		return res;
 	}
+
 
 }
 
