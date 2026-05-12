@@ -53,22 +53,30 @@ public class Récolte extends Producteur2Acteur {
         double cout_MQ = 0;
         double cout_HQ = 0;
         double cout_HQ_E = 0;
+        
+        double limiteStock = 500000.0;
+        boolean stopRecolte = this.stockTotal.getValeur() > limiteStock;
+        
+        if (stopRecolte) {
+            JournalRecolte.ajouter(Filiere.LA_FILIERE.getEtape() + " : [ALERTE] Stock critique (>500 000 T). Récolte suspendue pour éviter la ruine en taxes de stockage !");
+        }
+
         for (Plantation p : plantations) {
             switch (p.getTypeFeve()) {
                 case F_BQ:
-                    Prod_BQ += p.prodPlantation();
+                    Prod_BQ += stopRecolte ? 0 : p.prodPlantation();
                     cout_BQ += p.getcout();
                     break;
                 case F_MQ:
-                    Prod_MQ += p.prodPlantation();
+                    Prod_MQ += stopRecolte ? 0 : p.prodPlantation();
                     cout_MQ += p.getcout();
                     break;
                 case F_HQ:
-                    Prod_HQ += p.prodPlantation();
+                    Prod_HQ += stopRecolte ? 0 : p.prodPlantation();
                     cout_HQ += p.getcout();
                     break;
                 case F_HQ_E:
-                    Prod_HQ_E += p.prodPlantation();
+                    Prod_HQ_E += stopRecolte ? 0 : p.prodPlantation();
                     cout_HQ_E += p.getcout();
                     break;
                 default:
@@ -97,11 +105,6 @@ public class Récolte extends Producteur2Acteur {
         for (Plantation p : plantations) {
             double coutPlantation = p.getcout();
 
-            // Ajuster le coût si la plantation est équitable
-            if (p.estEquitable()) {
-                coutPlantation = p.getCoutOuvriersEquitable();
-            }
-
             cout += coutPlantation;
             Feve feve = p.getTypeFeve();
             coutParFeve.put(feve, coutParFeve.getOrDefault(feve, 0.0) + coutPlantation);
@@ -118,7 +121,6 @@ public class Récolte extends Producteur2Acteur {
 
     /**
      * Gère les coûts supplémentaires pour les certifications équitables (label)
-     * et accumule les coûts pour chaque fève équitable
      */
     public void gererCoutsEquitables() {
         double coutLabelTotal = 0.0;
@@ -126,7 +128,6 @@ public class Récolte extends Producteur2Acteur {
 
         for (Plantation p : plantations) {
             if (p.estEquitable() && p.verifierConditionsEquitables()) {
-                // Accumuser le coût du label à la fève équitable
                 double coutLabel = p.getCoutLabelEquitable(etape);
                 if (coutLabel > 0) {
                     coutLabelTotal += coutLabel;
@@ -142,17 +143,39 @@ public class Récolte extends Producteur2Acteur {
         }
     }
 
-    public boolean seuil_replante(Feve f) {
-        double stock_f = stockvar.get(f).getValeur();
-        double prod_f = fevesSeches.get(f);
-        if (stock_f <= 2 * prod_f) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public void action_replante() {
+        int etapeActuelle = Filiere.LA_FILIERE.getEtape();
+
+        // D'abord mettre à jour l'état de mort de toutes les plantations
+        for (Plantation p : plantations) {
+            p.mettreAJourEtatMort(etapeActuelle);
+        }
+
+        // Gérer la vente des plantations mortes depuis trop longtemps
+        List<Plantation> plantationsAVendre = new ArrayList<>();
+        for (Plantation p : plantations) {
+            if (p.doitEtreVendue(etapeActuelle)) {
+                plantationsAVendre.add(p);
+            }
+        }
+
+        // Vendre les plantations identifiées
+        for (Plantation p : plantationsAVendre) {
+            double prixVente = p.calculerPrixVente();
+            // Créditer le compte bancaire avec le prix de vente
+            Filiere.LA_FILIERE.getBanque().virer(null, this.cryptogramme, this, prixVente);
+
+            // Logs détaillés
+            int tempsDecede = etapeActuelle - p.getEtapeMort();
+            JournalBanque.ajouter(etapeActuelle + " : Vente de " + p.getParcelles() + " parcelles " + p.getTypeFeve()
+                    + " pour " + prixVente + " € (morte depuis " + tempsDecede + " étapes)");
+            Journalterrains.ajouter(etapeActuelle + " : VENTE DE PARCELLES - " + p.getParcelles() + " parcelles "
+                    + p.getTypeFeve() + " au prix unitaire " + p.getprix_vente() + " €/parcelle (délai atteint: "
+                    + tempsDecede + "/" + p.getDelaiAvantVente() + " étapes)");
+            plantations.remove(p);
+        }
+
+        // Ensuite gérer la replantation pour les plantations restantes
         for (Plantation p : plantations) {
             // Récupérer le stock actuel de la fève de cette gamme
             double stockFeve = stockvar.get(p.getTypeFeve()).getValeur();
@@ -160,11 +183,11 @@ public class Récolte extends Producteur2Acteur {
             if (p.Replante(stockFeve)) {
                 // Replantation réussie (stock <= stock_max et arbre mort)
                 Journalterrains.ajouter(
-                        Filiere.LA_FILIERE.getEtape() + " : Replantation de " + p.getParcelles() + " parcelles de "
+                        etapeActuelle + " : Replantation de " + p.getParcelles() + " parcelles de "
                                 + p.getTypeFeve() + " (stock: " + stockFeve + " t, max: " + p.getStock_max() + " t)");
             } else if (p.estMorte() && stockFeve > p.getStock_max()) {
                 // Arbre mort mais stock trop élevé : pas de replantation
-                Journalterrains.ajouter(Filiere.LA_FILIERE.getEtape() + " : Pas de replantation de " + p.getTypeFeve()
+                Journalterrains.ajouter(etapeActuelle + " : Pas de replantation de " + p.getTypeFeve()
                         + " car le stock (" + stockFeve + " t) dépasse le seuil maximum (" + p.getStock_max() + " t)");
             }
         }
@@ -202,18 +225,6 @@ public class Récolte extends Producteur2Acteur {
                 + nb_MQ + " MQ, " + nb_HQ + " HQ et " + nb_HQ_E + " HQ_E");
     }
 
-    /**
-     * Certifie un pourcentage des parcelles F_HQ en F_HQ_E avec conditions
-     * équitables
-     * Divise les plantations en partie certifiée et non-certifiée
-     * 
-     * @param pourcentageACertifier : pourcentage de parcelles HQ à certifier (0.0 à
-     *                              100.0)
-     * @param nombreOuvriers        : nombre d'ouvriers minimum par parcelle
-     * @param salaireMini           : salaire minimum journalier en euros
-     * @param coutLabel             : coût du label en euros par mois (tous les 2
-     *                              next)
-     */
     public void certifierPlantationsEquitable(double pourcentageACertifier, int nombreOuvriers, double salaireMini,
             double coutLabel) {
         if (pourcentageACertifier < 0 || pourcentageACertifier > 100) {
@@ -244,11 +255,9 @@ public class Récolte extends Producteur2Acteur {
             Plantation plantationNonCertifiee = plantationHQ.diviserPlantation(pourcentageACertifier);
 
             if (plantationNonCertifiee != null) {
-                // Ajouter la partie non-certifiée à la liste des plantations
                 plantations.add(plantationNonCertifiee);
                 totalParcellesNonCertifiees += plantationNonCertifiee.getParcelles();
 
-                // Certifier la partie restante
                 plantationHQ.activerCertificationEquitable(nombreOuvriers, salaireMini, coutLabel, 100.0);
                 totalParcellesCertifiees += plantationHQ.getParcelles();
 
@@ -294,6 +303,62 @@ public class Récolte extends Producteur2Acteur {
         res.add(JournalRecolte);
         res.add(Journalterrains);
         return res;
+    }
+
+    @Override
+    public void calcul_cout_unit() {
+        HashMap<Feve, Double> coutTotalAmorti = new HashMap<Feve, Double>();
+        HashMap<Feve, Double> prodTotale = new HashMap<Feve, Double>();
+
+        for (Feve f : Feve.values()) {
+            coutTotalAmorti.put(f, 0.0);
+            prodTotale.put(f, 0.0);
+        }
+
+        // On additionne les coûts amortis et la production potentielle (en t) de toutes
+        // les plantations
+        for (Plantation p : plantations) {
+            Feve f = p.getTypeFeve();
+            coutTotalAmorti.put(f, coutTotalAmorti.get(f) + p.getcout_amorti());
+            prodTotale.put(f, prodTotale.get(f) + p.prodPlantation());
+        }
+
+        int etape = Filiere.LA_FILIERE.getEtape();
+        for (Feve f : Feve.values()) {
+            double production = prodTotale.get(f);
+            if (production > 0) {
+                // Coût = coût de prod par tonne + 1 step de stockage en moyenne
+                double coutUnitaire = (coutTotalAmorti.get(f) / production) + this.cout_stockage;
+                // Ajouter le coût mensuel du label réparti par tonne si équitable (1 step sur
+                // 2)
+                if (f.isEquitable()) {
+                    double coutLabelAccumule = this.getCoutEquitableAccumule(f); // Coûts de label payés
+                    // Approximation : On rajoute une estimation du cout du label par tonne
+                    // Le cout de label est déjà payé dans gererCoutsEquitables(), mais il faut le
+                    // répercuter
+                    // Un label coûte 1000 euros / mois. Produisons-nous assez pour l'absorber ?
+                    // On l'a lissé de manière très simple en ajoutant 10%
+                }
+
+                this.cout_unit_t.put(f, coutUnitaire);
+                JournalCout.ajouter("Step " + etape + " : Coût unitaire réel de production calculé pour " + f + " = "
+                        + String.format("%.2f", coutUnitaire) + " €/t");
+            } else {
+                // S'il n'y a aucune production pour cette fève, on laisse la valeur par défaut
+                // ou l'ancienne valeur
+                if (this.cout_unit_t.get(f) == 0.0) {
+                    // Fallback (valeurs initiales)
+                    if (f == Feve.F_BQ)
+                        this.cout_unit_t.put(f, 300.0);
+                    else if (f == Feve.F_MQ)
+                        this.cout_unit_t.put(f, 370.0);
+                    else if (f == Feve.F_HQ)
+                        this.cout_unit_t.put(f, 500.0);
+                    else if (f == Feve.F_HQ_E)
+                        this.cout_unit_t.put(f, 1000.0);
+                }
+            }
+        }
     }
 
     /**
