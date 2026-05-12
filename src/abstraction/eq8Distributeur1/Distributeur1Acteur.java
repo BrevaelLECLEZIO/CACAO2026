@@ -10,13 +10,14 @@ import abstraction.eqXRomu.filiere.Banque;
 import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.filiere.IActeur;
 import abstraction.eqXRomu.filiere.IDistributeurChocolatDeMarque;
+import abstraction.eqXRomu.filiere.IMarqueChocolat;
 import abstraction.eqXRomu.general.Journal;
 import abstraction.eqXRomu.general.Variable;
 import abstraction.eqXRomu.produits.Chocolat;
 import abstraction.eqXRomu.produits.ChocolatDeMarque;
 import abstraction.eqXRomu.produits.IProduit;
 
-public class Distributeur1Acteur implements IDistributeurChocolatDeMarque {
+public class Distributeur1Acteur implements IDistributeurChocolatDeMarque, IMarqueChocolat {
 	
 	protected Journal journal0;/** @author Ewen Landron */
 	protected Journal journal1;/** @author Alexandre Cornet */
@@ -62,40 +63,22 @@ public class Distributeur1Acteur implements IDistributeurChocolatDeMarque {
 	/** @author Alexandre Cornet */
 	public void initialiser() {
 		List<ChocolatDeMarque> p=Filiere.LA_FILIERE.getChocolatsProduits();
-		ChocolatDeMarque C_MQ_ProntellaM = p.get(0);
-		this.Prix.put(C_MQ_ProntellaM, 14000.0);
-		ChocolatDeMarque C_BQ_Prontella = p.get(1);
-		this.Prix.put(C_BQ_Prontella, 22000.0);
-		ChocolatDeMarque C_HQ_Prontella = p.get(2);
-		this.Prix.put(C_HQ_Prontella, 27000.0);
-		ChocolatDeMarque C_BQ_E_Prontella = p.get(3);
-		this.Prix.put(C_BQ_E_Prontella, 25000.0);
-		ChocolatDeMarque C_HQ_E_Prontella = p.get(4);
-		this.Prix.put(C_HQ_E_Prontella, 30000.0);
-		ChocolatDeMarque C_HQ_Ferrara = p.get(5);
-		this.Prix.put(C_HQ_Ferrara, 27000.0);
-		ChocolatDeMarque C_MQ_Ferrara = p.get(6);
-		this.Prix.put(C_MQ_Ferrara, 14000.0);
-		ChocolatDeMarque C_BQ_Ferrara = p.get(7);
-		this.Prix.put(C_BQ_Ferrara, 22000.0);
-		ChocolatDeMarque C_MQ_LamborghiniduCacao = p.get(8);
-		this.Prix.put(C_MQ_LamborghiniduCacao, 14000.0);
-		ChocolatDeMarque C_HQ_E_Villors = p.get(9);
-		this.Prix.put(C_HQ_E_Villors, 30000.0);
-		ChocolatDeMarque C_HQ_Villors = p.get(10);
-		this.Prix.put(C_HQ_Villors, 27000.0);
-		ChocolatDeMarque C_MQ_E_Villors = p.get(11);
-		this.Prix.put(C_MQ_E_Villors, 14000.0);
-		ChocolatDeMarque C_MQ_Villors = p.get(12);
-		this.Prix.put(C_MQ_Villors, 14000.0);
-		ChocolatDeMarque C_BQ_E_Villors = p.get(13);
-		this.Prix.put(C_BQ_E_Villors, 25000.0);
-		ChocolatDeMarque C_BQ_Villors = p.get(14);
-		this.Prix.put(C_BQ_Villors, 22000.0);
-		ChocolatDeMarque C_BQ_CACAO = p.get(15);
-		this.Prix.put(C_BQ_CACAO, 22000.0);
-
+		
 		for (int i=0; i<p.size(); i++){
+			if (p.get(i).getGamme() == abstraction.eqXRomu.produits.Gamme.BQ && !p.get(i).isEquitable()) {
+				this.Prix.put((IProduit)(p.get(i)), 22000.0);
+			} else if (p.get(i).getGamme() == abstraction.eqXRomu.produits.Gamme.MQ && !p.get(i).isEquitable()) {
+				this.Prix.put((IProduit)(p.get(i)), 14000.0);
+			} else if (p.get(i).getGamme() == abstraction.eqXRomu.produits.Gamme.HQ && !p.get(i).isEquitable()) {
+				this.Prix.put((IProduit)(p.get(i)), 27000.0);
+			} else if (p.get(i).getGamme() == abstraction.eqXRomu.produits.Gamme.BQ && p.get(i).isEquitable()) {
+				this.Prix.put((IProduit)(p.get(i)), 25000.0);
+			} else if (p.get(i).getGamme() == abstraction.eqXRomu.produits.Gamme.MQ && p.get(i).isEquitable()) {
+				this.Prix.put((IProduit)(p.get(i)), 16000.0);
+			} else if (p.get(i).getGamme() == abstraction.eqXRomu.produits.Gamme.HQ && p.get(i).isEquitable()) {
+				this.Prix.put((IProduit)(p.get(i)), 30000.0);
+			}
+
 			this.Stock.put((IProduit)(p.get(i)),1000000.0);
 			this.Rayon.put((IProduit)(p.get(i)),0.0);
 			this.volumeStock.ajouter(this,getQuantiteEnStock((IProduit)(p.get(i)),this.cryptogramme));
@@ -372,5 +355,15 @@ public class Distributeur1Acteur implements IDistributeurChocolatDeMarque {
 	public void notificationRayonVide(ChocolatDeMarque choco, int crypto) {
 		this.journal0.ajouter("Rayon de "+choco+" en rupture");
 		
+	}
+
+	public List<String> getMarquesChocolat(){
+		List<String> L = new ArrayList<String>();
+		List<ChocolatDeMarque> p=Filiere.LA_FILIERE.getChocolatsProduits();
+		for (int i=0; i<p.size(); i++){
+			L.add(p.get(i).getMarque());
+
+		}
+		return L;
 	}
 }
