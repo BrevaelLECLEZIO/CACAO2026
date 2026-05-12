@@ -81,6 +81,7 @@ public class Transformateur4Production extends Transformateur4Marques implements
         }
     }
         
+        
     
 
     public List<ChocolatDeMarque> getChocolatsProduits() {
