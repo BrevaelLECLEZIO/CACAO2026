@@ -193,47 +193,84 @@ public class Transformateur2Stock extends Transformateur2Marque{
 
         /**@author Maxence
         **/
-        public void update_peremption(){
-            int etape = Filiere.LA_FILIERE.getEtape();
-            while(!this.sacsHQ.isEmpty() && this.sacsHQ.get(0).getDatePeremption()<=etape){
-                SacDeFeves sac=this.sacsHQ.remove(0);
+        public void update_peremption() {
+        int etape = Filiere.LA_FILIERE.getEtape();
+
+        // 1. Pour les HQ
+        for (int i = this.sacsHQ.size() - 1; i >= 0; i--) {
+            SacDeFeves sac = this.sacsHQ.get(i);
+            // On vérifie tous les sacs (même ceux en retard)
+            if (sac.getDatePeremption() <= etape) {
+                this.sacsHQ.remove(i);
                 this.stock_feve.put(Feve.F_HQ, this.stock_feve.get(Feve.F_HQ) - sac.getQuantite());
-                SacDeFeves newSac=new SacDeFeves(Feve.F_MQ, sac.getQuantite());
+                
+                SacDeFeves newSac = new SacDeFeves(Feve.F_MQ, sac.getQuantite());
                 this.stock_feve.put(Feve.F_MQ, this.stock_feve.get(Feve.F_MQ) + sac.getQuantite());
                 this.sacsMQ.add(newSac);
             }
-            while(!this.sacsHQ_E.isEmpty() && this.sacsHQ_E.get(0).getDatePeremption()<=etape){
-                SacDeFeves sac=this.sacsHQ_E.remove(0);
+        }
+
+        // 2. Pour les HQ_E
+        for (int i = this.sacsHQ_E.size() - 1; i >= 0; i--) {
+            SacDeFeves sac = this.sacsHQ_E.get(i);
+            if (sac.getDatePeremption() <= etape) {
+                this.sacsHQ_E.remove(i);
                 this.stock_feve.put(Feve.F_HQ_E, this.stock_feve.get(Feve.F_HQ_E) - sac.getQuantite());
-                SacDeFeves newSac=new SacDeFeves(Feve.F_MQ_E, sac.getQuantite());
+                
+                SacDeFeves newSac = new SacDeFeves(Feve.F_MQ_E, sac.getQuantite());
                 this.stock_feve.put(Feve.F_MQ_E, this.stock_feve.get(Feve.F_MQ_E) + sac.getQuantite());
                 this.sacsMQ_E.add(newSac);
             }
-            while(!this.sacsMQ.isEmpty() && this.sacsMQ.get(0).getDatePeremption()<=etape){
-                SacDeFeves sac=this.sacsMQ.remove(0);
+        }
+
+        // 3. Pour les MQ
+        for (int i = this.sacsMQ.size() - 1; i >= 0; i--) {
+            SacDeFeves sac = this.sacsMQ.get(i);
+            if (sac.getDatePeremption() <= etape) {
+                this.sacsMQ.remove(i);
                 this.stock_feve.put(Feve.F_MQ, this.stock_feve.get(Feve.F_MQ) - sac.getQuantite());
-                SacDeFeves newSac=new SacDeFeves(Feve.F_BQ, sac.getQuantite());
+                
+                SacDeFeves newSac = new SacDeFeves(Feve.F_BQ, sac.getQuantite());
                 this.stock_feve.put(Feve.F_BQ, this.stock_feve.get(Feve.F_BQ) + sac.getQuantite());
                 this.sacsBQ.add(newSac);
             }
-            while(!this.sacsMQ_E.isEmpty() && this.sacsMQ_E.get(0).getDatePeremption()<=etape){
-                SacDeFeves sac=this.sacsMQ_E.remove(0);
+        }
+
+        // 4. Pour les MQ_E
+        for (int i = this.sacsMQ_E.size() - 1; i >= 0; i--) {
+            SacDeFeves sac = this.sacsMQ_E.get(i);
+            if (sac.getDatePeremption() <= etape) {
+                this.sacsMQ_E.remove(i);
                 this.stock_feve.put(Feve.F_MQ_E, this.stock_feve.get(Feve.F_MQ_E) - sac.getQuantite());
-                SacDeFeves newSac=new SacDeFeves(Feve.F_BQ_E, sac.getQuantite());
+                
+                SacDeFeves newSac = new SacDeFeves(Feve.F_BQ_E, sac.getQuantite());
                 this.stock_feve.put(Feve.F_BQ_E, this.stock_feve.get(Feve.F_BQ_E) + sac.getQuantite());
                 this.sacsBQ_E.add(newSac);
             }
-            while(!this.sacsBQ.isEmpty() && this.sacsBQ.get(0).getDatePeremption()<=etape){
-                SacDeFeves sac=this.sacsBQ.remove(0);
+        }
+
+        // 5. Pour les BQ (DESTRUCTION TOTALE)
+        for (int i = this.sacsBQ.size() - 1; i >= 0; i--) {
+            SacDeFeves sac = this.sacsBQ.get(i);
+            if (sac.getDatePeremption() <= etape) {
+                this.sacsBQ.remove(i);
                 this.stock_feve.put(Feve.F_BQ, this.stock_feve.get(Feve.F_BQ) - sac.getQuantite());
-                this.stock_feve_affichage.retirer(this, sac.getQuantite());
-            }
-            while(!this.sacsBQ_E.isEmpty() && this.sacsBQ_E.get(0).getDatePeremption()<=etape){
-                SacDeFeves sac=this.sacsBQ_E.remove(0);
-                this.stock_feve.put(Feve.F_BQ_E, this.stock_feve.get(Feve.F_BQ_E) - sac.getQuantite());
-                this.stock_feve_affichage.retirer(this, sac.getQuantite());
+                
+                this.stock_feve_affichage.retirer(this, sac.getQuantite()); 
             }
         }
+
+        // 6. Pour les BQ_E (DESTRUCTION TOTALE)
+        for (int i = this.sacsBQ_E.size() - 1; i >= 0; i--) {
+            SacDeFeves sac = this.sacsBQ_E.get(i);
+            if (sac.getDatePeremption() <= etape) {
+                this.sacsBQ_E.remove(i);
+                this.stock_feve.put(Feve.F_BQ_E, this.stock_feve.get(Feve.F_BQ_E) - sac.getQuantite());
+                
+                this.stock_feve_affichage.retirer(this, sac.getQuantite()); 
+            }
+        }
+    }
 
        /**@author Maxence */
     public void add_chocolatDeMarque(ChocolatDeMarque choco, Double quantite){
