@@ -60,9 +60,12 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
     }
 
     public void notificationNouveauContratCadre(ExemplaireContratCadre contrat){
-        if (contratAvecDistributeur(contrat)) {
-            this.journalCCVente.ajouter("Notification nouveau contrat cadre : " + contrat);
-            this.contratsVendus.add(contrat);
+        super.notificationNouveauContratCadre(contrat);
+        if (contrat.getVendeur() != null && contrat.getVendeur().equals(this)) {
+            if (contratAvecDistributeur(contrat)) {
+                this.journalCCVente.ajouter("Notification nouveau contrat cadre (Vente) : " + contrat);
+                this.contratsVendus.add(contrat);
+            }
         }
     }
 
@@ -111,9 +114,10 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
                 sup.demandeVendeur(acheteur, this, LamborghiniduCacao, e, cryptogramme, false);
             }
         }
+        List<IAcheteurContratCadre> acheteursChocoenbien = sup.getAcheteurs(Chocoenbien);
 
-        if (this.getStockProduit(Chocoenbien) > 800 && !acheteurs.isEmpty()) {
-            IAcheteurContratCadre acheteur = acheteurs.get(0);
+        if (this.getStockProduit(Chocoenbien) > 800 && !acheteursChocoenbien.isEmpty()) {
+            IAcheteurContratCadre acheteur = acheteursChocoenbien.get(0);
             if (acheteur instanceof IDistributeurChocolatDeMarque) {
                 Echeancier e = new Echeancier(Filiere.LA_FILIERE.getEtape()+1, 2, this.getStockProduit(Chocoenbien) / 2);
                 this.journalCCVente.ajouter("Envoi d'une demande vendeur pour " + Chocoenbien + " \u00e0 " + acheteur.getNom());

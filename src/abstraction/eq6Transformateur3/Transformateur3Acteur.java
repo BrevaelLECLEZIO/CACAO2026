@@ -203,12 +203,14 @@ public class Transformateur3Acteur implements IActeur, IMarqueChocolat, IFabrica
 	public List<ChocolatDeMarque> getChocolatsProduits(){
 		List<ChocolatDeMarque> ListeChoco=new ArrayList<ChocolatDeMarque>();
 		ListeChoco.add(LamborghiniduCacao);
+		ListeChoco.add(Chocoenbien);
 		return ListeChoco;
     }
 
 	public List<String> getMarquesChocolat(){
 		List<String> ListeNoms= new ArrayList<String>();
 		ListeNoms.add("LamborghiniduCacao");
+		ListeNoms.add("Chocoenbien");
 		return ListeNoms;
     }
 

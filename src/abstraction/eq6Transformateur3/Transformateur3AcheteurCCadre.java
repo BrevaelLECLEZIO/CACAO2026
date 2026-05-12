@@ -106,7 +106,10 @@ public class Transformateur3AcheteurCCadre extends Transformateur3AcheteurBourse
 			return false;
 		}
 		Feve f = (Feve) produit;
-		return stockFeve.getQuantite(f)+restantDu(f) < 150000;
+		if (f == Feve.F_HQ_E || f == Feve.F_MQ_E) {
+        	return stockFeve.getQuantite(f) + restantDu(f) < 150000;
+    	}
+    	return false;
 	}
  
 	public Echeancier contrePropositionDeLAcheteur(ExemplaireContratCadre contrat) {
@@ -161,8 +164,10 @@ public class Transformateur3AcheteurCCadre extends Transformateur3AcheteurBourse
 	}
 
 	public void notificationNouveauContratCadre(ExemplaireContratCadre contrat) {
-		journalCC.ajouter("Nouveau contrat :"+contrat);
-		this.contratsEnCours.add(contrat);
+		if (contrat.getAcheteur() != null && contrat.getAcheteur().equals(this)) {
+			journalCC.ajouter("Nouveau contrat (Achat) : " + contrat);
+			this.contratsEnCours.add(contrat);
+		}
 	}
 
 	public void receptionner(IProduit p, double quantiteEnTonnes, ExemplaireContratCadre contrat) {
