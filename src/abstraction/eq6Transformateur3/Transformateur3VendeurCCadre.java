@@ -341,4 +341,14 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
 
         return res;
     }
+
+    public double restantALivrer(IProduit p) {
+        double res = 0;
+        for (ExemplaireContratCadre c : this.contratsVendus) {
+            if (c.getProduit().equals(p)) {
+                res += c.getQuantiteRestantALivrer();
+            }
+        }
+        return res;
+    }
 }

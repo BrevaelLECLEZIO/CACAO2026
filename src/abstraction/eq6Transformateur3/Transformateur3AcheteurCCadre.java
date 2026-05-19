@@ -42,7 +42,7 @@ public class Transformateur3AcheteurCCadre extends Transformateur3AcheteurBourse
 		this.journalCC.ajouter("Etape"+Filiere.LA_FILIERE.getEtape());
 				for (Feve f : stockFeve.getFeves()) {
 					if (f == Feve.F_HQ_E || f == Feve.F_MQ_E ) { // pas top...
-						if (stockFeve.getQuantite(f) + restantDu(f) < 20000) {
+						if (true) {
 							this.journalCC.ajouter("   "+f+" suffisamment peu en stock/contrat pour passer un CC");
 							double parStep = Math.max(100, (21200-stockFeve.getQuantite(f)-restantDu(f))/12); // au moins 100
 							Echeancier e = new Echeancier(Filiere.LA_FILIERE.getEtape()+1, 12, parStep);
