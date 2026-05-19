@@ -13,7 +13,7 @@ public class Plantation {
     private double prix_vente; // Prix de vente de la plantation
     private double prix_replantation; // Prix de replantation de la plantation
     private double salaire_employe; // Prix que coûtent les employés par step par parcelle
-    private double cout_cooperative = 0 ; // Prix que coûtent les infrastructures communes à la coopérative par step
+    private double cout_cooperative = 10000 ; // Prix que coûtent les infrastructures communes à la coopérative par step
     private double stock_max;       // Stock maximum de fèves avant de ne pas replanter
     private boolean replante = false;
     private int etapeMort = -1;     // Étape à laquelle la plantation est devenue morte (-1 si vivante)
