@@ -220,16 +220,7 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
                 disponible - aLivrer
         );
 
-        this.journalCCVente.ajouter(
-                "Livraison de "
-                + aLivrer
-                + " T de "
-                + produit
-                + " | contrat "
-                + contrat.getNumero()
-                + " | stock restant = "
-                + this.getStockProduit(produit)
-        );
+        this.journalCCVente.ajouter("Livraison de "+ aLivrer+ " T de "+ produit+ " | contrat "+ contrat.getNumero()+ " | stock restant = "+ this.getStockProduit(produit));
 
         return aLivrer;
     }
@@ -270,33 +261,13 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
 
             if (acheteur instanceof IDistributeurChocolatDeMarque) {
 
-                double quantite =
-                        disponibleLambo * 0.25;
+                double quantite = disponibleLambo * 0.25;
 
-                Echeancier e =
-                        new Echeancier(
-                                Filiere.LA_FILIERE.getEtape()+1,
-                                4,
-                                quantite/4
-                        );
+                Echeancier e = new Echeancier(Filiere.LA_FILIERE.getEtape()+1,4,quantite/4);
 
-                this.journalCCVente.ajouter(
-                        "Demande vendeur envoyee : "
-                        + quantite
-                        + " T de "
-                        + LamborghiniduCacao
-                        + " a "
-                        + acheteur.getNom()
-                );
+                this.journalCCVente.ajouter("Demande vendeur envoyee : "+ quantite+ " T de "+ LamborghiniduCacao+ " a "+ acheteur.getNom());
 
-                sup.demandeVendeur(
-                        acheteur,
-                        this,
-                        LamborghiniduCacao,
-                        e,
-                        cryptogramme,
-                        false
-                );
+                sup.demandeVendeur(acheteur,this,LamborghiniduCacao,e,cryptogramme,false);
             }
         }
 
@@ -319,29 +290,11 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
                         disponibleChoco * 0.25;
 
                 Echeancier e =
-                        new Echeancier(
-                                Filiere.LA_FILIERE.getEtape()+1,
-                                4,
-                                quantite/4
-                        );
+                        new Echeancier(Filiere.LA_FILIERE.getEtape()+1,4,quantite/4);
 
-                this.journalCCVente.ajouter(
-                        "Demande vendeur envoyee : "
-                        + quantite
-                        + " T de "
-                        + Chocoenbien
-                        + " a "
-                        + acheteur.getNom()
-                );
+                this.journalCCVente.ajouter("Demande vendeur envoyee : "+ quantite+ " T de "+ Chocoenbien+ " a "+ acheteur.getNom());
 
-                sup.demandeVendeur(
-                        acheteur,
-                        this,
-                        Chocoenbien,
-                        e,
-                        cryptogramme,
-                        false
-                );
+                sup.demandeVendeur(acheteur,this,Chocoenbien,e,cryptogramme,false);
             }
         }
 
@@ -349,8 +302,7 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
         /*     ARCHIVAGE CONTRATS    */
         /* ========================= */
 
-        List<ExemplaireContratCadre> termines =
-                new LinkedList<ExemplaireContratCadre>();
+        List<ExemplaireContratCadre> termines = new LinkedList<ExemplaireContratCadre>();
 
         for (ExemplaireContratCadre c : this.contratsVendus) {
 
@@ -363,10 +315,7 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
 
         for (ExemplaireContratCadre c : termines) {
 
-            this.journalCCVente.ajouter(
-                    "Archivage contrat "
-                    + c.getNumero()
-            );
+            this.journalCCVente.ajouter("Archivage contrat "+ c.getNumero());
 
             this.contratsVendus.remove(c);
         }
@@ -386,8 +335,7 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
 
     public List<Journal> getJournaux() {
 
-        List<Journal> res =
-                new ArrayList<Journal>(super.getJournaux());
+        List<Journal> res = new ArrayList<Journal>(super.getJournaux());
 
         res.add(this.journalCCVente);
 
